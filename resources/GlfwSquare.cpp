@@ -1,15 +1,19 @@
-#include "./../headers/glHeaders.h"
+#include "./../headers/GlfwHeaders.h"
 #include <cmath>
 #include <iostream>
 
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float height,
-                       bool isStatic)
-//: x1(bottomLeftX), y1(bottomLeftY), x3(bottomLeftX + width), y3(bottomLeftY + height)
+                       bool isStatic = true, float mass = 999)
 {
     this->x1 = 2 * bottomLeftX / W_WIDTH - 1;
     this->y1 = 2 * bottomLeftY / W_HEIGHT - 1;
     this->x3 = 2 * (bottomLeftX + width) / W_WIDTH - 1;
     this->y3 = 2 * (bottomLeftY + height) / W_HEIGHT - 1;
+
+    this->x2 = this->x3;
+    this->y2 = this->y1;
+    this->x4 = this->x1;
+    this->y4 = this->y3;
 
     this->width = width;   // (topRightX - bottomLeftX);  // * W_WIDTH;
     this->height = height; // (topRightY - bottomLeftY); // * W_HEIGHT;
@@ -19,13 +23,13 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
     this->largeCenterAngle = 2 * std::acos(this->height / 2 / this->radius);
     this->smallCenterAngle = M_PI - this->largeCenterAngle;
 
+    this->mass = mass;
+
     this->CMx = (this->x1 + this->x3) / 2;
     this->CMy = (this->y1 + this->y3) / 2;
 
-    this->x2 = this->x3;
-    this->y2 = this->y1;
-    this->x4 = this->x1;
-    this->y4 = this->y3;
+    this->CMFx = this->mass * 0;
+    this->CMFy = this->mass * 0;
 };
 
 float GlfwSquare::getWidth()
@@ -87,4 +91,10 @@ int GlfwSquare::draw()
 float GlfwSquare::distanceFromCM(float &x, float &y)
 {
     return std::sqrt((this->CMx - x) * (this->CMx - x) + (this->CMy - y) * (this->CMy - y));
+}
+
+void GlfwSquare::calculateAcceleration()
+{
+    this->DD_CMx = this->CMFx / this->mass;
+    this->DD_CMy = this->CMFy / this->mass;
 }

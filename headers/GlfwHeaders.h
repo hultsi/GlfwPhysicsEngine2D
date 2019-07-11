@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <GLFW/glfw3.h>
-#include "./engineConstants.h"
+#include "./EngineConstants.h"
 
 #include "./GlfwSquare.h"
-#include "./glfwGameControl.h"
+#include "./GlfwGameControl.h"

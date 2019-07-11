@@ -1,10 +1,10 @@
 #pragma once
-#include "./glHeaders.h"
+#include "./GlfwHeaders.h"
 
-class GameControl
+class GlfwGameControl
 {
 public:
-    GameControl();
+    GlfwGameControl();
     static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
     GlfwSquare *createObject(GlfwSquare obj);

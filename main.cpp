@@ -1,10 +1,10 @@
 #include <iostream>
-#include "./headers/glHeaders.h"
+#include "./headers/GlfwHeaders.h"
 
 int main(void)
 {
     GLFWwindow *window;
-    GameControl gameControl;
+    GlfwGameControl gameControl;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -23,11 +23,11 @@ int main(void)
     glfwSwapInterval(1);
 
     /* Define callbacks */
-    glfwSetKeyCallback(window, GameControl::keyCallback);
+    glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
 
     // Define shapes
-    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80, true));
-    gameControl.createObject(GlfwSquare(500, 400, 200, 60, false));
+    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80, true, 0));
+    gameControl.createObject(GlfwSquare(500, 400, 200, 60, false, 20));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

@@ -1,12 +1,12 @@
-#include "./../headers/glHeaders.h"
+#include "./../headers/GlfwHeaders.h"
 #include <iostream>
 
-GameControl::GameControl()
+GlfwGameControl::GlfwGameControl()
 {
     std::cout << "Game initialized" << std::endl;
 }
 
-void GameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
@@ -14,14 +14,14 @@ void GameControl::keyCallback(GLFWwindow *window, int key, int scancode, int act
     }
 }
 
-GlfwSquare *GameControl::createObject(GlfwSquare obj)
+GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
     this->glfwSquareAll.emplace_back(obj);
 
     return &this->glfwSquareAll.back();
 }
 
-void GameControl::drawAll()
+void GlfwGameControl::drawAll()
 {
     for (int i = 0; i < this->glfwSquareAll.size(); i++)
     {
