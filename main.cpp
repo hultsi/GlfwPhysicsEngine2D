@@ -26,7 +26,7 @@ int main(void)
     glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
 
     // Define shapes
-    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80, true, 0));
+    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80, true, 10));
     gameControl.createObject(GlfwSquare(500, 400, 200, 60, false, 20));
 
     /* Loop until the user closes the window */
