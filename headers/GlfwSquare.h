@@ -24,4 +24,5 @@ private:
         CMFx, CMFy, rotation, D_rotation,
         width, height, radius, mass,
         largeCenterAngle, smallCenterAngle;
+    int applyForce;
 };

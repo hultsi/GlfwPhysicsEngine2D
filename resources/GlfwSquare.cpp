@@ -25,6 +25,8 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
 
     this->mass = mass;
 
+    (isStatic ? this->applyForce = 0 : this->applyForce = 1);
+
     this->CMx = (this->x1 + this->x3) / 2;
     this->CMy = (this->y1 + this->y3) / 2;
 
