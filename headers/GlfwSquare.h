@@ -4,7 +4,8 @@ class GlfwSquare
 {
 public:
     GlfwSquare(){};
-    GlfwSquare(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY, bool isStatic, float mass);
+    GlfwSquare(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY,
+               bool isStatic = true, float mass = 999);
 
     float getWidth();
     float getHeight();
@@ -13,6 +14,8 @@ public:
 
     void move(float x, float y);
     void rotate(float rad);
+
+    void applyGravity(float *gravity);
 
 private:
     void calculateAcceleration();
@@ -24,5 +27,6 @@ private:
         CMFx, CMFy, rotation, D_rotation,
         width, height, radius, mass,
         largeCenterAngle, smallCenterAngle;
+    float *gravity;
     int applyForce;
 };

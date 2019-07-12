@@ -3,7 +3,7 @@
 #include <iostream>
 
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float height,
-                       bool isStatic = true, float mass = 999)
+                       bool isStatic, float mass)
 {
     this->x1 = 2 * bottomLeftX / W_WIDTH - 1;
     this->y1 = 2 * bottomLeftY / W_HEIGHT - 1;
@@ -30,8 +30,8 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
     this->CMx = (this->x1 + this->x3) / 2;
     this->CMy = (this->y1 + this->y3) / 2;
 
-    this->CMFx = this->mass * 0;
-    this->CMFy = this->mass * 0;
+    this->CMFx = 0;
+    this->CMFy = 0;
 };
 
 float GlfwSquare::getWidth()
@@ -87,6 +87,10 @@ int GlfwSquare::draw()
     return 1;
 }
 
+void GlfwSquare::applyGravity(float *gravity)
+{
+    this->gravity = gravity;
+}
 /**
  * Private
  */

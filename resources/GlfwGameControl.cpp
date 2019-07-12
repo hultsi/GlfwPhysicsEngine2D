@@ -1,9 +1,11 @@
 #include "./../headers/GlfwHeaders.h"
 #include <iostream>
 
-GlfwGameControl::GlfwGameControl()
+GlfwGameControl::GlfwGameControl(float gravity)
 {
     std::cout << "Game initialized" << std::endl;
+
+    this->gravity = gravity;
 }
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -14,9 +16,13 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
     }
 }
 
-GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
+GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj, bool applyGravity)
 {
     this->glfwSquareAll.emplace_back(obj);
+    if (applyGravity)
+    {
+        this->glfwSquareAll.back().applyGravity(&this->gravity);
+    }
 
     return &this->glfwSquareAll.back();
 }
@@ -27,4 +33,9 @@ void GlfwGameControl::drawAll()
     {
         glfwSquareAll[i].draw();
     }
+}
+
+float *GlfwGameControl::getGravity()
+{
+    return &this->gravity;
 }
