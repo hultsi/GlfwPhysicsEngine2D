@@ -27,13 +27,16 @@ int main(void)
 
     // Define shapes
     gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
-    gameControl.createObject(GlfwSquare(500, 400, 200, 60, false, 20), true);
+    gameControl.createObject(GlfwSquare(500, 400, 200, 60, false, 20));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+        /* Update objects */
+        gameControl.updateAll();
 
         /* Draw objects */
         gameControl.drawAll();

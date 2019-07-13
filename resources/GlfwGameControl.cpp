@@ -4,8 +4,6 @@
 GlfwGameControl::GlfwGameControl(float gravity)
 {
     std::cout << "Game initialized" << std::endl;
-
-    this->gravity = gravity;
 }
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -16,13 +14,9 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
     }
 }
 
-GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj, bool applyGravity)
+GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
     this->glfwSquareAll.emplace_back(obj);
-    if (applyGravity)
-    {
-        this->glfwSquareAll.back().applyGravity(&this->gravity);
-    }
 
     return &this->glfwSquareAll.back();
 }
@@ -35,7 +29,10 @@ void GlfwGameControl::drawAll()
     }
 }
 
-float *GlfwGameControl::getGravity()
+void GlfwGameControl::updateAll()
 {
-    return &this->gravity;
+    for (int i = 0; i < this->glfwSquareAll.size(); i++)
+    {
+        glfwSquareAll[i].update();
+    }
 }

@@ -6,3 +6,5 @@
 
 #include "./GlfwSquare.h"
 #include "./GlfwGameControl.h"
+#include "./GlfwForces.h"
+#include "./GlfwCollision.h"

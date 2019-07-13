@@ -10,16 +10,16 @@ public:
     float getWidth();
     float getHeight();
 
-    int draw();
+    void update();
+    void draw();
 
     void move(float x, float y);
     void rotate(float rad);
 
-    void applyGravity(float *gravity);
-
 private:
-    void calculateAcceleration();
-    void calculateVelocity();
+    void updateForces();
+    void updateAcceleration();
+    void updateVelocity();
     float distanceFromCM(float &x, float &y);
 
     float x1, y1, x2, y2, x3, y3, x4, y4,
@@ -27,6 +27,5 @@ private:
         CMFx, CMFy, rotation, D_rotation,
         width, height, radius, mass,
         largeCenterAngle, smallCenterAngle;
-    float *gravity;
     int applyForce;
 };

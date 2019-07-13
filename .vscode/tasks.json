@@ -17,8 +17,9 @@
       "command": "g++",
       "args": [
         "main.cpp",
-        "./resources/glfwSquare.cpp",
-        "./resources/glfwGameControl.cpp",
+        "./resources/GlfwSquare.cpp",
+        "./resources/GlfwGameControl.cpp",
+        "./resources/GlfwForces.cpp",
         "-o",
         "build/out.exe",
         "-L.",

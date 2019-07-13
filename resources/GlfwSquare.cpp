@@ -65,9 +65,15 @@ void GlfwSquare::rotate(float rad)
     y4 = CMy + this->radius * std::sin(this->rotation + this->largeCenterAngle + this->smallCenterAngle / 2);
 }
 
-int GlfwSquare::draw()
+//Happens BEFORE draw() and during every loop
+void GlfwSquare::update()
 {
-    float x, y;
+    this->updateForces();
+    this->updateAcceleration();
+}
+//Happens AFTER update() and during every loop
+void GlfwSquare::draw()
+{
     glBegin(GL_LINES);
 
     glVertex2f(x1, y1);
@@ -83,14 +89,8 @@ int GlfwSquare::draw()
     glVertex2f(x1, y1);
 
     glEnd();
-
-    return 1;
 }
 
-void GlfwSquare::applyGravity(float *gravity)
-{
-    this->gravity = gravity;
-}
 /**
  * Private
  */
@@ -99,8 +99,19 @@ float GlfwSquare::distanceFromCM(float &x, float &y)
     return std::sqrt((this->CMx - x) * (this->CMx - x) + (this->CMy - y) * (this->CMy - y));
 }
 
-void GlfwSquare::calculateAcceleration()
+void GlfwSquare::updateForces()
+{
+    this->CMFy = GlfwForces::gravity(GRAVITY, this->mass);
+
+    this->CMFy *= this->applyForce;
+}
+
+void GlfwSquare::updateAcceleration()
 {
     this->DD_CMx = this->CMFx / this->mass;
     this->DD_CMy = this->CMFy / this->mass;
+}
+
+void GlfwSquare::updateVelocity()
+{
 }
