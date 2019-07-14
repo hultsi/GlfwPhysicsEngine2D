@@ -20,6 +20,8 @@ private:
     void updateForces();
     void updateAcceleration();
     void updateVelocity();
+    void updatePosition();
+
     float distanceFromCM(float &x, float &y);
 
     float x1, y1, x2, y2, x3, y3, x4, y4,

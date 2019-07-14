@@ -17,10 +17,13 @@ int main(void)
         glfwTerminate();
         return -1;
     }
-
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
+
+    glViewport(0.0f, 0.0f, W_WIDTH, W_HEIGHT);
+    glLoadIdentity();
+    glOrtho(0, W_WIDTH, 0, W_HEIGHT, 0, 1); //Screen size, rotation and scaling
 
     /* Define callbacks */
     glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
