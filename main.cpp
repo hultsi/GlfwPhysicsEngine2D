@@ -28,6 +28,7 @@ int main(void)
     glOrtho(0, W_WIDTH, 0, W_HEIGHT, 0, 1); //Screen size, rotation and scaling
 
     /* Define keycallbacks */
+    glfwSetWindowUserPointer(window, (void *)&gameControl);
     glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
 
     // TODO: Abstractify shape definition

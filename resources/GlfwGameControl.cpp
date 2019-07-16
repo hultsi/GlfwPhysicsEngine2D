@@ -12,30 +12,30 @@ GlfwGameControl::GlfwGameControl(float gravity)
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
+    GlfwGameControl *gameControl = (GlfwGameControl *)glfwGetWindowUserPointer(window);
+    std::vector<GlfwSquare> *squares = gameControl->getSquares();
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
     {
+        squares->at(0).move(-5);
     }
-    /*if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
     {
-        glfwSquareAll.at(0).move(2);
+        squares->at(0).move(5);
     }
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
     {
-        glfwSquareAll.at(0).move(0, 2);
+        squares->at(0).move(0, 5);
     }
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
     {
-        glfwSquareAll.at(0).move(0, -2);
-    }*/
+        squares->at(0).move(0, -5);
+    }
 }
-void GlfwGameControl::test()
-{
-    //glfwSquareAll.at(0).move(-2);
-}
+
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
     this->glfwSquareAll.emplace_back(obj);
