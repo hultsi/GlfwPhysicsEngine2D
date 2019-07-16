@@ -9,7 +9,7 @@ public:
     GlfwCollision();
     GlfwCollision(GlfwGameControl *gameControl);
 
-    GlfwSquare *withSquare(GlfwSquare *sqObj);
+    std::vector<GlfwSquare *> withSquare(GlfwSquare *sqObj);
 
 private:
     GlfwGameControl *gameControl;

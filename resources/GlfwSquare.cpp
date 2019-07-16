@@ -74,21 +74,28 @@ Coords GlfwSquare::getCoordinates()
     return coordVec;
 }
 
+void GlfwSquare::move(float xInc, float yInc)
+{
+    this->CMx += xInc;
+    this->CMy += yInc;
+
+    x1 = this->CMx + this->radius * std::cos(this->rotation + this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
+    y1 = this->CMy + this->radius * std::sin(this->rotation + this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
+
+    x2 = this->CMx + this->radius * std::cos(this->rotation + 2 * this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
+    y2 = this->CMy + this->radius * std::sin(this->rotation + 2 * this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
+
+    x3 = this->CMx + this->radius * std::cos(this->rotation + this->smallCenterAngle / 2);
+    y3 = this->CMy + this->radius * std::sin(this->rotation + this->smallCenterAngle / 2);
+
+    x4 = this->CMx + this->radius * std::cos(this->rotation + this->largeCenterAngle + this->smallCenterAngle / 2);
+    y4 = this->CMy + this->radius * std::sin(this->rotation + this->largeCenterAngle + this->smallCenterAngle / 2);
+}
+
 void GlfwSquare::rotate(float rad)
 {
     this->rotation += rad;
-
-    x1 = CMx + this->radius * std::cos(this->rotation + this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
-    y1 = CMy + this->radius * std::sin(this->rotation + this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
-
-    x2 = CMx + this->radius * std::cos(this->rotation + 2 * this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
-    y2 = CMy + this->radius * std::sin(this->rotation + 2 * this->largeCenterAngle + this->smallCenterAngle * 3 / 2);
-
-    x3 = CMx + this->radius * std::cos(this->rotation + this->smallCenterAngle / 2);
-    y3 = CMy + this->radius * std::sin(this->rotation + this->smallCenterAngle / 2);
-
-    x4 = CMx + this->radius * std::cos(this->rotation + this->largeCenterAngle + this->smallCenterAngle / 2);
-    y4 = CMy + this->radius * std::sin(this->rotation + this->largeCenterAngle + this->smallCenterAngle / 2);
+    this->move();
 }
 
 //Happens BEFORE draw() and during every loop
@@ -97,7 +104,7 @@ void GlfwSquare::update(double SPF)
     this->updateForces(SPF);
     this->updateAcceleration();
     this->updateVelocity();
-    if (glfwCollision->withSquare(this) != nullptr)
+    if (glfwCollision->withSquare(this).size() != 0)
     {
         std::cout << "Collision" << std::endl;
     }

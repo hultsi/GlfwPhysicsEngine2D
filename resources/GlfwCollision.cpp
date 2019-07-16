@@ -11,51 +11,83 @@ GlfwCollision::GlfwCollision(GlfwGameControl *gameControl)
 }
 
 //TODO: Use separating axis theorem to do this
-GlfwSquare *GlfwCollision::withSquare(GlfwSquare *sqObj)
+std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
 {
     std::vector<GlfwSquare> *squaresAll = gameControl->getSquares();
+    std::vector<GlfwSquare *> collidingSquares;
 
     bool collision = true; // Algorithm "assumes" for collision initially
-    Coords coords1 = sqObj->getCoordinates();
+    Coords coords1;        // = sqObj->getCoordinates();
     Coords coords2;
-    // Define P unit vector which is parallel
-    // to one of the sides of the square
+
+    GlfwSquare *sq1, *sq2;
     float theta, d1, d2;
     Vector2d P;
-    for (int i = 0; i < squaresAll->size(); i++)
+    for (int i = 0; i < squaresAll->size(); i++) //loop over squares
     {
-        for (int j = 0; j < coords1.size() / 2; j++)
+        for (int n = 0; n < 2; n++) // loop over both squares to get all necessary projections
         {
-            /* First square */
-            // Square side angle
-            theta = std::atan((coords1.at(j + 1).y - coords1.at(j + 1).y) / (coords1.at(j).x - coords1.at(j).x));
-            // And finally P
-            P.x = std::cos(theta);
-            P.y = std::sin(theta);
-            //Here d2 = d1+width OR d2 = d1+height
-            d1 = coords1.at(0).dot(P);
-            d2 = coords1.at(1).dot(P);
-            if (d2 < d1)
+            if (sqObj == &squaresAll->at(i))
+                break;
+            if (n == 0)
             {
-                d1 = d2;
-                d2 = coords1.at(0).dot(P);
+                sq1 = sqObj;
+                sq2 = &squaresAll->at(i);
             }
-            /* Second square */
-            // Calculate projections of each corner to P
-            if (&squaresAll->at(i) != sqObj)
+            else
             {
-                coords2 = squaresAll->at(i).getCoordinates();
+                sq1 = &squaresAll->at(i);
+                sq2 = sqObj;
+            }
+            Coords coords1 = sq1->getCoordinates();
+            Coords coords2 = sq2->getCoordinates();
+            for (int j = 0; j < coords1.size() / 2; j++)
+            {
+                /* First square */
+                // Define P unit vector which is parallel
+                // to one of the sides of the square
+                // Square side angle
+                theta = std::atan((coords1.at(j + 1).y - coords1.at(j + 1).y) / (coords1.at(j).x - coords1.at(j).x));
+                // And finally P
+                P.x = std::cos(theta);
+                P.y = std::sin(theta);
+                //Here d2 = d1+width OR d2 = d1+height
+                d1 = coords1.at(j).dot(P);
+                d2 = coords1.at(j + 1).dot(P);
+                if (d2 < d1)
+                {
+                    d1 = d2;
+                    d2 = coords1.at(j).dot(P);
+                }
+                /* Second square */
+                // Calculate projections of each corner to P
                 for (int k = 0; k < 4; k++)
                 {
                     if (coords2.at(k).dot(P) >= d1 && coords2.at(k).dot(P) <= d2)
                     {
                         break; // Collision happens in this projection
                     }
-                    if (k == 3) //Collision not found!
-                        return nullptr;
+                    if (k == 3)
+                    {
+                        n = -1;
+                        j = -1;
+                    }
                 }
+
+                if (j == -1)
+                    break;
+            }
+            if (n == -1)
+            {
+                break;
+            }
+            if (n == 1)
+            {
+                std::cout << sqObj << std::endl;
+                collidingSquares.emplace_back(sq1);
             }
         }
     }
-    return nullptr;
+
+    return collidingSquares;
 }

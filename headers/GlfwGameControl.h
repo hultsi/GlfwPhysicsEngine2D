@@ -16,6 +16,8 @@ public:
     void updateAll(double msPerFrame = 1);
     void drawAll();
 
+    void test();
+
 private:
     std::vector<GlfwSquare> glfwSquareAll;
 

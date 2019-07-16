@@ -19,7 +19,7 @@ public:
     void update(double SPF = 1); // Seconds Per Frame
     void draw();
 
-    void move(float x, float y);
+    void move(float xInc = 0, float yInc = 0);
     void rotate(float rad);
 
     void pointCollisionControl(GlfwCollision *collisionObj);
