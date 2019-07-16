@@ -21,7 +21,7 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
     Coords coords2;
 
     GlfwSquare *sq1, *sq2;
-    float theta, d1, d2;
+    float theta, d1, d2, q1, q2;
     Vector2d P;
     for (int i = 0; i < squaresAll->size(); i++) //loop over squares
     {
@@ -41,13 +41,13 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
             }
             Coords coords1 = sq1->getCoordinates();
             Coords coords2 = sq2->getCoordinates();
-            for (int j = 0; j < coords1.size() / 2; j++)
+            for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
             {
                 /* First square */
                 // Define P unit vector which is parallel
                 // to one of the sides of the square
                 // Square side angle
-                theta = std::atan((coords1.at(j + 1).y - coords1.at(j + 1).y) / (coords1.at(j).x - coords1.at(j).x));
+                theta = std::atan((coords1.at(j + 1).y - coords1.at(j).y) / (coords1.at(j + 1).x - coords1.at(j).x));
                 // And finally P
                 P.x = std::cos(theta);
                 P.y = std::sin(theta);
@@ -61,17 +61,26 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
                 }
                 /* Second square */
                 // Calculate projections of each corner to P
-                for (int k = 0; k < 4; k++)
+                q1 = coords2.at(0).dot(P);
+                q2 = coords2.at(0).dot(P);
+                for (int k = 1; k < 4; k++)
                 {
-                    if (coords2.at(k).dot(P) >= d1 && coords2.at(k).dot(P) <= d2)
-                    {
-                        break; // Collision happens in this projection
-                    }
-                    if (k == 3)
-                    {
-                        n = -1;
-                        j = -1;
-                    }
+                    if (coords2.at(k).dot(P) < q1)
+                        q1 = coords2.at(k).dot(P);
+                    if (coords2.at(k).dot(P) > q2)
+                        q2 = coords2.at(k).dot(P);
+                }
+
+                if (q1 >= d1 && q1 <= d2 || q2 >= d1 && q2 <= d2 ||
+                    d1 >= q1 && d1 <= q2 || d2 >= q1 && d2 <= q2)
+                {
+                    // Collision happens in this projection
+                    // do something?
+                }
+                else
+                {
+                    j = -1;
+                    n = -1;
                 }
 
                 if (j == -1)
@@ -83,7 +92,6 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
             }
             if (n == 1)
             {
-                std::cout << sqObj << std::endl;
                 collidingSquares.emplace_back(sq1);
             }
         }
