@@ -5,7 +5,7 @@
 #include <array>
 
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float height,
-                       bool isStatic, float mass)
+                       double rotation, bool isStatic, float mass)
 {
     this->x1 = bottomLeftX;          // 2 * bottomLeftX / W_WIDTH - 1;
     this->y1 = bottomLeftY;          // 2 * bottomLeftY / W_HEIGHT - 1;
@@ -40,6 +40,8 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
 
     this->DD_CMx = 0;
     this->DD_CMy = 0;
+
+    this->rotate(rotation);
 };
 
 float GlfwSquare::getWidth()
@@ -65,6 +67,7 @@ Coords GlfwSquare::getCoordinates()
     vec.x = this->x3;
     vec.y = this->y3;
     coordVec.insert(coordVec.end(), vec);
+    Vector2d vec2;
     vec.x = this->x4;
     vec.y = this->y4;
     coordVec.insert(coordVec.end(), vec);
@@ -94,26 +97,11 @@ void GlfwSquare::update(double SPF)
     this->updateForces(SPF);
     this->updateAcceleration();
     this->updateVelocity();
-    if (GlfwCollision::withSquare(this) != nullptr)
+    if (glfwCollision->withSquare(this) != nullptr)
     {
         std::cout << "Collision" << std::endl;
     }
-    /*double velocity = std::sqrt(this->D_CMx * this->D_CMx + this->D_CMy * this->D_CMy);
-    double reducer = velocity * 0.1;
-    while (GlfwCollision::withSquare(this) != nullptr)
-    {
-        velocity -= reducer;
-        D_CMx = velocity * std::cos(this->rotation);
-        D_CMy = velocity * std::sin(this->rotation);
-        this->updateVelocity();
-    }*/
     this->updatePosition();
-
-    //TODO: Remove at some point or move elsewhere
-    if (GlfwCollision::withSquare(this) != nullptr)
-        this->collision = true;
-    else
-        this->collision = false;
 }
 //Happens AFTER update() and during every loop
 void GlfwSquare::draw()
@@ -150,7 +138,7 @@ void GlfwSquare::updateForces(double SPF)
     this->CMFx = 0;
     this->CMFx *= SPF * (this->applyForce);
 
-    this->CMFy = 0; //(-GlfwForces::gravity(GRAVITY, this->mass));
+    this->CMFy = 0;
     this->CMFy *= SPF * (this->applyForce);
 }
 
@@ -173,4 +161,9 @@ void GlfwSquare::updatePosition()
     //std::cout << D_CMy << std::endl;
     //TODO: DO BETTER
     this->rotate(0);
+}
+
+void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
+{
+    glfwCollision = collisionObj;
 }

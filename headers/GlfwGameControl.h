@@ -10,6 +10,7 @@ public:
 
     GlfwSquare *createObject(GlfwSquare obj);
 
+    std::vector<GlfwSquare> *getSquares();
     void resetPerformance();
     double getPerformance(bool printPerformance = true);
     void updateAll(double msPerFrame = 1);
@@ -22,4 +23,6 @@ private:
     double currentTime;
     double SPF = 16.666;
     int nbFrames = 0;
+
+    GlfwCollision glfwCollision;
 };

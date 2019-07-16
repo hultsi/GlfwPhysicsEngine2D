@@ -6,6 +6,6 @@
 
 #include "./Vector2d.h"
 #include "./GlfwSquare.h"
+#include "./GlfwCollision.h"
 #include "./GlfwGameControl.h"
 #include "./GlfwForces.h"
-#include "./GlfwCollision.h"

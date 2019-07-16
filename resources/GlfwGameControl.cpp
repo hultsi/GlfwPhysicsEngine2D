@@ -5,6 +5,9 @@
 GlfwGameControl::GlfwGameControl(float gravity)
 {
     std::cout << "Game initialized" << std::endl;
+
+    GlfwCollision collisionObj(this);
+    this->glfwCollision = collisionObj;
 }
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -18,6 +21,7 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
     this->glfwSquareAll.emplace_back(obj);
+    glfwSquareAll.back().pointCollisionControl(&glfwCollision);
 
     return &this->glfwSquareAll.back();
 }
@@ -58,4 +62,9 @@ double GlfwGameControl::getPerformance(bool printPerformance)
         lastTime += 1.0;
     }
     return this->SPF;
+}
+
+std::vector<GlfwSquare> *GlfwGameControl::getSquares()
+{
+    return &this->glfwSquareAll;
 }
