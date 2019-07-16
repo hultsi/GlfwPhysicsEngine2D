@@ -6,5 +6,5 @@ class GlfwCollision
 public:
     GlfwCollision();
 
-    GlfwSquare *withSquare(GlfwSquare *sqObj);
+    static GlfwSquare *withSquare(GlfwSquare *sqObj);
 };

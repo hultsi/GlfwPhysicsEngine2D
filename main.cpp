@@ -5,7 +5,6 @@ int main(void)
 {
     GLFWwindow *window;
     GlfwGameControl gameControl;
-
     /* Initialize the library */
     if (!glfwInit())
         return -1;
@@ -17,29 +16,39 @@ int main(void)
         glfwTerminate();
         return -1;
     }
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+    /* Define view size as W_WIDTH and W_HEIGHT instead of -1 to 1 (also scaling and rotation) */
     glViewport(0.0f, 0.0f, W_WIDTH, W_HEIGHT);
     glLoadIdentity();
     glOrtho(0, W_WIDTH, 0, W_HEIGHT, 0, 1); //Screen size, rotation and scaling
 
-    /* Define callbacks */
+    /* Define keycallbacks */
     glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
 
+    // TODO: Abstractify shape definition
     // Define shapes
-    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
+    GlfwSquare *asd = gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
     gameControl.createObject(GlfwSquare(500, 400, 200, 60, false, 20));
+
+    // Reset performance calc
+    gameControl.resetPerformance();
+    double msPerFrame;
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
+        // Calculate performance
+        msPerFrame = gameControl.getPerformance();
+
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Update objects */
-        gameControl.updateAll();
+        gameControl.updateAll(msPerFrame);
 
         /* Draw objects */
         gameControl.drawAll();
@@ -54,3 +63,16 @@ int main(void)
     glfwTerminate();
     return 0;
 }
+
+/*
+FPS LIMITER
+
+double lasttime = glfwGetTime();
+while (!glfwWindowShouldClose(window)) {
+    myGameUpdate();
+    while (glfwGetTime() < lasttime + 1.0/TARGET_FPS) {
+        // TODO: Put the thread to sleep, yield, or simply do nothing
+    }
+    lasttime += 1.0/TARGET_FPS;
+}
+*/

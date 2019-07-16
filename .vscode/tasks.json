@@ -20,6 +20,8 @@
         "./resources/GlfwSquare.cpp",
         "./resources/GlfwGameControl.cpp",
         "./resources/GlfwForces.cpp",
+        "./resources/GlfwCollision.cpp",
+        "./resources/Vector2d.cpp",
         "-o",
         "build/out.exe",
         "-L.",

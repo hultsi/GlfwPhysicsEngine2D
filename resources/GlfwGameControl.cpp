@@ -1,5 +1,6 @@
 #include "./../headers/GlfwHeaders.h"
 #include <iostream>
+#include <vector>
 
 GlfwGameControl::GlfwGameControl(float gravity)
 {
@@ -25,14 +26,36 @@ void GlfwGameControl::drawAll()
 {
     for (int i = 0; i < this->glfwSquareAll.size(); i++)
     {
-        glfwSquareAll[i].draw();
+        glfwSquareAll.at(i).draw();
     }
 }
 
-void GlfwGameControl::updateAll()
+void GlfwGameControl::updateAll(double msPerFrame)
 {
+    msPerFrame *= 0.001;
     for (int i = 0; i < this->glfwSquareAll.size(); i++)
     {
-        glfwSquareAll[i].update();
+        glfwSquareAll.at(i).update(msPerFrame);
     }
+}
+
+void GlfwGameControl::resetPerformance()
+{
+    this->lastTime = glfwGetTime();
+    this->nbFrames = 0;
+}
+
+double GlfwGameControl::getPerformance(bool printPerformance)
+{
+    this->currentTime = glfwGetTime();
+    this->nbFrames++;
+    if (this->currentTime - this->lastTime >= 1)
+    {
+        if (printPerformance)
+            std::cout << "ms/frame " << 1000.0 / static_cast<double>(nbFrames) << std::endl;
+        this->SPF = 1000.0 / static_cast<double>(nbFrames);
+        nbFrames = 0;
+        lastTime += 1.0;
+    }
+    return this->SPF;
 }

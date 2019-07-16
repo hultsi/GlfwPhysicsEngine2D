@@ -1,5 +1,6 @@
 #pragma once
 #include "./GlfwHeaders.h"
+#include <vector>
 
 class GlfwGameControl
 {
@@ -9,9 +10,16 @@ public:
 
     GlfwSquare *createObject(GlfwSquare obj);
 
-    void updateAll();
+    void resetPerformance();
+    double getPerformance(bool printPerformance = true);
+    void updateAll(double msPerFrame = 1);
     void drawAll();
 
 private:
     std::vector<GlfwSquare> glfwSquareAll;
+
+    double lastTime = glfwGetTime();
+    double currentTime;
+    double SPF = 16.666;
+    int nbFrames = 0;
 };

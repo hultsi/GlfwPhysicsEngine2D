@@ -1,4 +1,5 @@
 #pragma once
+#include "./GlfwHeaders.h"
 
 class GlfwForces
 {
