@@ -4,7 +4,7 @@ Just started a small project to fine tune my understanding of cpp.
 Uses OpenGL3.x instead of 4.
 
 ## Engine capabilities for now:
-  ..* Show screen
+  * Show screen
   ..* Draw rectangles
   ..* Add key listeners
   ..* Collision detection for rectangles
