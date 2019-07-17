@@ -7,27 +7,23 @@
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float height,
                        double rotation, bool isStatic, float mass)
 {
-    this->x1 = bottomLeftX;          // 2 * bottomLeftX / W_WIDTH - 1;
-    this->y1 = bottomLeftY;          // 2 * bottomLeftY / W_HEIGHT - 1;
-    this->x3 = bottomLeftX + width;  // 2 * (bottomLeftX + width) / W_WIDTH - 1;
-    this->y3 = bottomLeftY + height; // 2 * (bottomLeftY + height) / W_HEIGHT - 1;
+    this->x1 = bottomLeftX;          // these are cm --> convert to meters when used
+    this->y1 = bottomLeftY;          // these are cm --> convert to meters when used
+    this->x3 = bottomLeftX + width;  // these are cm --> convert to meters when used
+    this->y3 = bottomLeftY + height; // these are cm --> convert to meters when used
 
     this->x2 = this->x3;
     this->y2 = this->y1;
     this->x4 = this->x1;
     this->y4 = this->y3;
 
-    this->width = x3 - x1;  // (topRightX - bottomLeftX);  // * W_WIDTH;
-    this->height = y3 - y1; // (topRightY - bottomLeftY); // * W_HEIGHT;
+    this->width = x3 - x1;  // these are cm --> convert to meters when used
+    this->height = y3 - y1; // these are cm --> convert to meters when used
     this->rotation = 0;
 
     this->radius = std::sqrt(this->width * this->width / 4 + this->height * this->height / 4);
     this->largeCenterAngle = 2 * std::acos(this->height / 2 / this->radius);
     this->smallCenterAngle = M_PI - this->largeCenterAngle;
-
-    this->mass = mass;
-
-    (isStatic ? this->applyForce = 0 : this->applyForce = 1);
 
     this->CMx = this->x1 + this->width / 2;
     this->CMy = this->y1 + this->height / 2;
@@ -42,6 +38,15 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
     this->DD_CMy = 0;
 
     this->rotate(rotation);
+
+    this->mass = mass;
+    if (!isStatic)
+    {
+        this->applyForce = 1;
+        // Add md^2 to moment of inertia to gain the inertia over some other axis than CoM
+        // m = mass & d = distance between the axes
+        this->momentOfInertia = 0.0001 * mass * (height * height + width * width) / 12;
+    }
 };
 
 float GlfwSquare::getWidth()
@@ -54,22 +59,27 @@ float GlfwSquare::getHeight()
     return this->height;
 }
 
-Coords GlfwSquare::getCoordinates()
+Coords GlfwSquare::getCoordinates(bool addVelocity)
 {
+    float velX = 0, velY = 0;
+    if (addVelocity)
+    {
+        velX = this->D_CMx;
+        velY = this->D_CMy;
+    }
     Coords coordVec;
     Vector2d vec;
-    vec.x = this->x1;
-    vec.y = this->y1;
+    vec.x = this->x1 + velX;
+    vec.y = this->y1 + velY;
     coordVec.insert(coordVec.end(), vec);
-    vec.x = this->x2;
-    vec.y = this->y2;
+    vec.x = this->x2 + velX;
+    vec.y = this->y2 + velY;
     coordVec.insert(coordVec.end(), vec);
-    vec.x = this->x3;
-    vec.y = this->y3;
+    vec.x = this->x3 + velX;
+    vec.y = this->y3 + velY;
     coordVec.insert(coordVec.end(), vec);
-    Vector2d vec2;
-    vec.x = this->x4;
-    vec.y = this->y4;
+    vec.x = this->x4 + velX;
+    vec.y = this->y4 + velY;
     coordVec.insert(coordVec.end(), vec);
     return coordVec;
 }
@@ -104,10 +114,7 @@ void GlfwSquare::update(double SPF)
     this->updateForces(SPF);
     this->updateAcceleration();
     this->updateVelocity();
-    if (glfwCollision->withSquare(this).size() != 0)
-    {
-        std::cout << "Collision" << std::endl;
-    }
+    this->handleCollision();
     this->updatePosition();
 }
 //Happens AFTER update() and during every loop
@@ -143,10 +150,9 @@ float GlfwSquare::distanceFromCM(float &x, float &y)
 void GlfwSquare::updateForces(double SPF)
 {
     this->CMFx = 0;
-    this->CMFx *= SPF * (this->applyForce);
+    this->CMFx *= (this->applyForce) / 30;
 
-    this->CMFy = 0;
-    this->CMFy *= SPF * (this->applyForce);
+    this->CMFy = 0 * (this->applyForce) / 30;
 }
 
 void GlfwSquare::updateAcceleration()
@@ -165,12 +171,23 @@ void GlfwSquare::updatePosition()
 {
     this->CMx += D_CMx;
     this->CMy += D_CMy;
-    //std::cout << D_CMy << std::endl;
     //TODO: DO BETTER
-    this->rotate(0);
+    this->move();
 }
 
 void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 {
     glfwCollision = collisionObj;
+}
+
+void GlfwSquare::handleCollision()
+{
+    if (glfwCollision->withSquare(this).size() != 0)
+    {
+        collision = true;
+    }
+    else
+    {
+        collision = false;
+    }
 }

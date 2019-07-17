@@ -20,19 +20,19 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
     }
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
     {
-        squares->at(0).move(-5);
+        squares->at(0).move(-8);
     }
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
     {
-        squares->at(0).move(5);
+        squares->at(0).move(8);
     }
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
     {
-        squares->at(0).move(0, 5);
+        squares->at(0).move(0, 8);
     }
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
     {
-        squares->at(0).move(0, -5);
+        squares->at(0).move(0, -8);
     }
 }
 
@@ -54,7 +54,6 @@ void GlfwGameControl::drawAll()
 
 void GlfwGameControl::updateAll(double msPerFrame)
 {
-    msPerFrame *= 0.001;
     for (int i = 0; i < this->glfwSquareAll.size(); i++)
     {
         glfwSquareAll.at(i).update(msPerFrame);

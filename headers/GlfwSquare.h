@@ -14,7 +14,7 @@ public:
 
     float getWidth();
     float getHeight();
-    Coords getCoordinates();
+    Coords getCoordinates(bool addVelocity = false);
 
     void update(double SPF = 1); // Seconds Per Frame
     void draw();
@@ -29,6 +29,7 @@ private:
     void updateAcceleration();
     void updateVelocity();
     void updatePosition();
+    void handleCollision();
 
     float distanceFromCM(float &x, float &y);
 
@@ -36,8 +37,8 @@ private:
     float x1, y1, x2, y2, x3, y3, x4, y4,
         width, height, radius, mass,
         largeCenterAngle, smallCenterAngle;
-    double CMx, CMy, CMFx, CMFy, D_CMx, D_CMy, DD_CMx, DD_CMy, rotation, D_rotation;
-    int applyForce;
+    double CMx, CMy, CMFx, CMFy, D_CMx, D_CMy, DD_CMx, DD_CMy, rotation, D_rotation, momentOfInertia = 0;
+    int applyForce = 0;
     bool collision = false;
 
     GlfwCollision *glfwCollision;
