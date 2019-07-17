@@ -5,10 +5,10 @@ Uses OpenGL3.x instead of 4.
 
 ## Engine capabilities for now:
   * Show screen
-  ..* Draw rectangles
-  ..* Add key listeners
-  ..* Collision detection for rectangles
-  ... Easily rewritable for all convex shapes
+  * Draw rectangles
+  * Add key listeners
+  * Collision detection for rectangles
+  Easily rewritable for all convex shapes
   
 ## Next up:
   ..* Forces
