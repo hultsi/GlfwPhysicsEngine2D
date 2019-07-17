@@ -12,6 +12,7 @@ Uses OpenGL3.x instead of 4.
        Easily rewritable for all convex shapes
   
 ## Next up:
+  * Handling collision (e.g., stuff not going inside each other)
   * Forces
      
      which basically means implementing:
