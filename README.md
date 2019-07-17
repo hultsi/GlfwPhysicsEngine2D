@@ -8,7 +8,7 @@ Uses OpenGL3.x instead of 4.
   * Draw rectangles
   * Add key listeners
   * Collision detection for rectangles
-  Easily rewritable for all convex shapes
+  . Easily rewritable for all convex shapes
   
 ## Next up:
   ..* Forces
