@@ -9,15 +9,16 @@ Uses OpenGL3.x instead of 4.
   * Add key listeners
   * Collision detection for rectangles
   
-     Easily rewritable for all convex shapes
+        Easily rewritable for all convex shapes
   
 ## Next up:
-  ..* Forces
-  ... which basically means implementing:
-  ... ..* Few mathematical methods for ODEs
-  ... ..* Some new properties
-  ... ..* And few other things
-  ... ..* E.g., will take a lot of time
+  * Forces
+     
+     which basically means implementing:
+        * Few mathematical methods for ODEs
+        * Some new properties
+        * And few other things
+        * E.g., will take a lot of time
 
 
 For the project to work, get GLFW from https://www.glfw.org .
