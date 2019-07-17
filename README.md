@@ -16,10 +16,10 @@ Uses OpenGL3.x instead of 4.
      
      which basically means implementing:
         
-        * Few mathematical methods for ODEs
-        * Some new properties
-        * And few other things
-        * E.g., will take a lot of time
+       * Few mathematical methods for ODEs
+       * Some new properties
+       * And few other things
+       * E.g., will take a lot of time
 
 
 For the project to work, get GLFW from https://www.glfw.org .
