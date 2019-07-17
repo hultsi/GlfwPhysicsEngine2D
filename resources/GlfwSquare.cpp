@@ -45,6 +45,7 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
         this->applyForce = 1;
         // Add md^2 to moment of inertia to gain the inertia over some other axis than CoM
         // m = mass & d = distance between the axes
+        // 0.0001 is = 0.01^2 = conversion from cm to meters
         this->momentOfInertia = 0.0001 * mass * (height * height + width * width) / 12;
     }
 };
