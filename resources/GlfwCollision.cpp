@@ -103,17 +103,29 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
     return collidingSquares;
 }
 
-void GlfwCollision::preventPenetration(GlfwSquare *sqObj)
+std::vector<GlfwSquare *> GlfwCollision::preventPenetration(GlfwSquare *sqObj)
 {
     double v, theta;
-    while (this->withSquare(sqObj).size() != 0)
+    std::vector<GlfwSquare *> collidingSquares;
+    while (this->withSquare(sqObj).size() != 0 && (sqObj->getSpdX() != 0 || sqObj->getSpdY() != 0))
     {
+        collidingSquares = this->withSquare(sqObj);
         v = std::sqrt(sqObj->getSpdX() * sqObj->getSpdX() + sqObj->getSpdY() + sqObj->getSpdY());
         theta = std::atan2(sqObj->getSpdY(), sqObj->getSpdX());
         v -= 1;
-        sqObj->setSpdX(v * std::cos(theta));
-        sqObj->setSpdY(v * std::sin(theta));
+        if (std::abs(v) < 1)
+        {
+            sqObj->setSpdX(0);
+            sqObj->setSpdY(0);
+        }
+        else
+        {
+            sqObj->setSpdX(v * std::cos(theta));
+            sqObj->setSpdY(v * std::sin(theta));
+        }
     }
+
+    return collidingSquares;
 }
 
 float GlfwCollision::GlfwPointOfCollision()

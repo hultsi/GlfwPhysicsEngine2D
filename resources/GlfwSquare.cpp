@@ -201,12 +201,10 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 
 void GlfwSquare::handleCollision()
 {
-
-    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
-    if (squares.size() != 0)
+    if (glfwCollision->withSquare(this).size() != 0)
     {
         collision = true;
-        //collisionHandler1();
+        std::vector<GlfwSquare *> squares = glfwCollision->preventPenetration(this);
     }
     else
     {
@@ -230,7 +228,7 @@ void GlfwSquare::collisionHandler1()
     while (squares.size() != 0 && D_CMx != 0)
     {
         double v = std::sqrt(D_CMx * D_CMx + D_CMy + D_CMy);
-        double theta = std::atan(D_CMy / D_CMx) - M_PI / 2;
+        double theta = std::atan(D_CMy / D_CMx);
         v -= 1;
         D_CMx = v * std::cos(theta);
         D_CMy = v * std::sin(theta);

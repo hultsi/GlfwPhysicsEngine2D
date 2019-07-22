@@ -10,7 +10,7 @@ public:
     GlfwCollision(GlfwGameControl *gameControl);
 
     float GlfwPointOfCollision();
-    void preventPenetration(GlfwSquare *sqObj);
+    std::vector<GlfwSquare *> preventPenetration(GlfwSquare *sqObj);
 
     std::vector<GlfwSquare *> withSquare(GlfwSquare *sqObj);
 
