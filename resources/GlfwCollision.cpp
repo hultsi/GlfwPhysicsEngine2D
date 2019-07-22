@@ -11,6 +11,7 @@ GlfwCollision::GlfwCollision(GlfwGameControl *gameControl)
 }
 
 //TODO: Use separating axis theorem to do this
+//TODO: Change to "Rectangle" instead...
 std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
 {
     std::vector<GlfwSquare> *squaresAll = gameControl->getSquares();
@@ -100,4 +101,23 @@ std::vector<GlfwSquare *> GlfwCollision::withSquare(GlfwSquare *sqObj)
     }
 
     return collidingSquares;
+}
+
+void GlfwCollision::preventPenetration(GlfwSquare *sqObj)
+{
+    double v, theta;
+    while (this->withSquare(sqObj).size() != 0)
+    {
+        v = std::sqrt(sqObj->getSpdX() * sqObj->getSpdX() + sqObj->getSpdY() + sqObj->getSpdY());
+        theta = std::atan2(sqObj->getSpdY(), sqObj->getSpdX());
+        v -= 1;
+        sqObj->setSpdX(v * std::cos(theta));
+        sqObj->setSpdY(v * std::sin(theta));
+    }
+}
+
+float GlfwCollision::GlfwPointOfCollision()
+{
+
+    return 0;
 }

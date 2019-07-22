@@ -19,7 +19,6 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
 
     this->width = x3 - x1;  // these are cm --> convert to meters when used
     this->height = y3 - y1; // these are cm --> convert to meters when used
-    this->rotation = 0;
 
     this->radius = std::sqrt(this->width * this->width / 4 + this->height * this->height / 4);
     this->largeCenterAngle = 2 * std::acos(this->height / 2 / this->radius);
@@ -37,6 +36,10 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
     this->DD_CMx = 0;
     this->DD_CMy = 0;
 
+    this->rotation = 0;
+    this->D_rotation = 0;
+    this->DD_rotation = 0;
+
     this->rotate(rotation);
 
     this->mass = mass;
@@ -46,10 +49,15 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float width, float 
         // Add md^2 to moment of inertia to gain the inertia over some other axis than CoM
         // m = mass & d = distance between the axes
         // 0.0001 is = 0.01^2 = conversion from cm to meters
-        this->momentOfInertia = 0.0001 * mass * (height * height + width * width) / 12;
+        this->inertia = 0.0001 * mass * (height * height + width * width) / 12;
     }
 };
 
+void GlfwSquare::setVelocity(double xVel, double yVel)
+{
+    this->D_CMx = xVel;
+    this->D_CMy = yVel;
+}
 float GlfwSquare::getWidth()
 {
     return this->width;
@@ -106,7 +114,6 @@ void GlfwSquare::move(float xInc, float yInc)
 void GlfwSquare::rotate(float rad)
 {
     this->rotation += rad;
-    this->move();
 }
 
 //Happens BEFORE draw() and during every loop
@@ -168,11 +175,22 @@ void GlfwSquare::updateVelocity()
     this->D_CMy += DD_CMy;
 }
 
+void GlfwSquare::updateAngAcceleration()
+{
+    this->D_rotation = 0;
+}
+
+void GlfwSquare::updateAngVelocity()
+{
+    this->D_rotation = 0;
+}
+
 void GlfwSquare::updatePosition()
 {
     this->CMx += D_CMx;
     this->CMy += D_CMy;
-    //TODO: DO BETTER
+    this->rotation += D_rotation;
+
     this->move();
 }
 
@@ -183,12 +201,107 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 
 void GlfwSquare::handleCollision()
 {
-    if (glfwCollision->withSquare(this).size() != 0)
+
+    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
+    if (squares.size() != 0)
     {
         collision = true;
+        //collisionHandler1();
     }
     else
     {
         collision = false;
     }
+}
+
+void GlfwSquare::collisionHandler1()
+{
+    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
+    float m1 = this->mass;
+    float m2 = squares.at(0)->getMass();
+    double v1 = this->D_CMx;
+    double v2 = squares.at(0)->getSpdX();
+    double v1FinalX = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
+    double D_CMx2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
+    v1 = this->D_CMy;
+    v2 = squares.at(0)->getSpdY();
+    double v1FinalY = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
+    double D_CMy2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
+    while (squares.size() != 0 && D_CMx != 0)
+    {
+        double v = std::sqrt(D_CMx * D_CMx + D_CMy + D_CMy);
+        double theta = std::atan(D_CMy / D_CMx) - M_PI / 2;
+        v -= 1;
+        D_CMx = v * std::cos(theta);
+        D_CMy = v * std::sin(theta);
+        squares = glfwCollision->withSquare(this);
+        std::cout << D_CMx << std::endl;
+        std::cout << D_CMy << std::endl;
+    }
+    D_CMx = v1FinalX;
+    D_CMy = v1FinalY;
+    squares.at(0)->setVelocity(D_CMx2, D_CMy2);
+}
+
+void GlfwSquare::collisionHandler2()
+{
+    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
+    float m1 = this->mass;
+    float m2 = squares.at(0)->getMass();
+    double v1 = std::sqrt(this->D_CMx * this->D_CMx + this->D_CMy * this->D_CMy);
+    double v2 = std::sqrt(squares.at(0)->getSpdX() * squares.at(0)->getSpdX() +
+                          squares.at(0)->getSpdY() * squares.at(0)->getSpdY());
+    double omega1 = this->D_rotation;
+    double omega2 = squares.at(0)->getAngVelocity();
+    double I1 = this->inertia;
+    double I2 = squares.at(0)->getInertia();
+}
+
+void GlfwSquare::setSpdX(double spd, bool increase)
+{
+    if (increase)
+    {
+        this->D_CMx += spd;
+    }
+    else
+    {
+        this->D_CMx = spd;
+    }
+}
+
+void GlfwSquare::setSpdY(double spd, bool increase)
+{
+    if (increase)
+    {
+        this->D_CMy += spd;
+    }
+    else
+    {
+        this->D_CMy = spd;
+    }
+}
+
+double GlfwSquare::getSpdX()
+{
+    return this->D_CMx;
+}
+
+double GlfwSquare::getSpdY()
+{
+    return this->D_CMy;
+}
+
+double GlfwSquare::getAngVelocity()
+{
+    return this->D_rotation;
+}
+
+double GlfwSquare::getInertia()
+{
+    return this->inertia;
+}
+
+float GlfwSquare::getMass()
+{
+    return this->mass;
 }

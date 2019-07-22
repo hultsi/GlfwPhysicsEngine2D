@@ -1,5 +1,5 @@
-#include <iostream>
 #include "./headers/GlfwHeaders.h"
+#include <iostream>
 
 int main(void)
 {
@@ -33,10 +33,11 @@ int main(void)
 
     // TODO: Abstractify shape definition
     // Define shapes
-    gameControl.createObject(GlfwSquare(500, 400, 200, 60, M_PI / 4, false, 20));
+    GlfwSquare *sq = gameControl.createObject(GlfwSquare(470, 440, 200, 60, 0, false, 20));
+    sq->setVelocity(3, 0);
     gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
-    gameControl.createObject(GlfwSquare(460, 450, 80, 60, 0, false, 20));
-    gameControl.createObject(GlfwSquare(560, 250, 180, 60, M_PI * 3 / 5, false, 120));
+    gameControl.createObject(GlfwSquare(760, 350, 280, 60, M_PI / 2, false, 120));
+    //gameControl.createObject(GlfwSquare(60, 650, 100, 30, 0, false, 120));
 
     // Reset performance calc
     gameControl.resetPerformance();
