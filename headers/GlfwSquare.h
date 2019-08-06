@@ -9,8 +9,8 @@ class GlfwSquare
 {
 public:
     GlfwSquare(){};
-    GlfwSquare(float topLeftX, float topLeftY, float bottomRightX, float bottomRightY,
-               double rotation = 0, bool isStatic = true, float mass = 999);
+    GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,
+               double rectRotation = 0, bool isStatic = true, float mass = 999);
 
     void setVelocity(double xVel = 0, double yVel = 0);
     void setSpdX(double spd, bool increase = false);
@@ -47,6 +47,7 @@ private:
     float distanceFromCM(float &x, float &y);
 
     //TODO maybe: Change coords to std::vector or std::array
+    //TODO: Change to public
     float x1, y1, x2, y2, x3, y3, x4, y4,
         width, height, radius, mass,
         largeCenterAngle, smallCenterAngle;
