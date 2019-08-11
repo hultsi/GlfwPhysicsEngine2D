@@ -42,12 +42,12 @@ public:
     void pointCollisionControl(GlfwCollision *collisionObj); // Used to assign GlfwCollision object pointer
 
 private:
-    void updateForces(double SPF = 1);
-    void updateAcceleration();
-    void updateVelocity();
-    void updateAngAcceleration();
-    void updateAngVelocity();
-    void updatePosition();
+    void updateForces(double dt);
+    void updateAcceleration(double dt);
+    void updateVelocity(double dt);
+    void updateAngAcceleration(double dt);
+    void updateAngVelocity(double dt);
+    void updatePosition(double dt);
     void handleCollision();
 
     void collisionHandler1();

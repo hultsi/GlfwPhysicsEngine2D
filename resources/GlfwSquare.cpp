@@ -108,13 +108,13 @@ void GlfwSquare::rotate(float rad)
 }
 
 //Happens BEFORE draw() and during every loop
-void GlfwSquare::update(double SPF)
+void GlfwSquare::update(double dt)
 {
-    updateForces(SPF);
-    updateAcceleration();
-    updateVelocity();
+    updateForces(dt);
+    updateAcceleration(dt);
+    updateVelocity(dt);
     handleCollision();
-    updatePosition();
+    updatePosition(dt);
 }
 //Happens AFTER update() and during every loop
 void GlfwSquare::draw()
@@ -146,37 +146,38 @@ float GlfwSquare::distanceFromCM(float &x, float &y)
     return std::sqrt((CMx - x) * (CMx - x) + (CMy - y) * (CMy - y));
 }
 
-void GlfwSquare::updateForces(double SPF)
+void GlfwSquare::updateForces(double dt)
 {
     CMFx = 0;
     CMFx *= (applyForce) / 30;
 
+    CMFy = 0;
     CMFy = 0 * (applyForce) / 30;
 }
 
-void GlfwSquare::updateAcceleration()
+void GlfwSquare::updateAcceleration(double dt)
 {
     DD_CMx = CMFx / mass;
     DD_CMy = CMFy / mass;
 }
 
-void GlfwSquare::updateVelocity()
+void GlfwSquare::updateVelocity(double dt)
 {
     D_CMx += DD_CMx;
     D_CMy += DD_CMy;
 }
 
-void GlfwSquare::updateAngAcceleration()
+void GlfwSquare::updateAngAcceleration(double dt)
 {
     D_rotation = 0;
 }
 
-void GlfwSquare::updateAngVelocity()
+void GlfwSquare::updateAngVelocity(double dt)
 {
     D_rotation = 0;
 }
 
-void GlfwSquare::updatePosition()
+void GlfwSquare::updatePosition(double dt)
 {
     CMx += D_CMx;
     CMy += D_CMy;
