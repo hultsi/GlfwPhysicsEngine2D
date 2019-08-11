@@ -66,6 +66,7 @@ void GlfwGameControl::resetPerformance()
     nbFrames = 0;
 }
 
+// Returns milliseconds per each frame
 double GlfwGameControl::getPerformance(bool printPerformance)
 {
     currentTime = glfwGetTime();

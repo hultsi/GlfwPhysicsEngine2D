@@ -58,15 +58,6 @@ void GlfwSquare::setVelocity(double xVel, double yVel)
     D_CMx = xVel;
     D_CMy = yVel;
 }
-float GlfwSquare::getWidth()
-{
-    return width;
-}
-
-float GlfwSquare::getHeight()
-{
-    return height;
-}
 
 Coords GlfwSquare::getCoordinates(bool addVelocity)
 {
@@ -217,13 +208,13 @@ void GlfwSquare::collisionHandler1()
 {
     std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
     float m1 = mass;
-    float m2 = squares.at(0)->getMass();
+    float m2 = squares.at(0)->mass;
     double v1 = D_CMx;
-    double v2 = squares.at(0)->getSpdX();
+    double v2 = squares.at(0)->D_CMx;
     double v1FinalX = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
     double D_CMx2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
     v1 = D_CMy;
-    v2 = squares.at(0)->getSpdY();
+    v2 = squares.at(0)->D_CMy;
     double v1FinalY = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
     double D_CMy2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
     while (squares.size() != 0 && D_CMx != 0)
@@ -246,14 +237,14 @@ void GlfwSquare::collisionHandler2()
 {
     std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
     float m1 = mass;
-    float m2 = squares.at(0)->getMass();
+    float m2 = squares.at(0)->mass;
     double v1 = std::sqrt(D_CMx * D_CMx + D_CMy * D_CMy);
-    double v2 = std::sqrt(squares.at(0)->getSpdX() * squares.at(0)->getSpdX() +
-                          squares.at(0)->getSpdY() * squares.at(0)->getSpdY());
+    double v2 = std::sqrt(squares.at(0)->D_CMx * squares.at(0)->D_CMx +
+                          squares.at(0)->D_CMy * squares.at(0)->D_CMy);
     double omega1 = D_rotation;
-    double omega2 = squares.at(0)->getAngVelocity();
+    double omega2 = squares.at(0)->D_rotation;
     double I1 = inertia;
-    double I2 = squares.at(0)->getInertia();
+    double I2 = squares.at(0)->inertia;
 }
 
 void GlfwSquare::setSpdX(double spd, bool increase)
@@ -278,29 +269,4 @@ void GlfwSquare::setSpdY(double spd, bool increase)
     {
         D_CMy = spd;
     }
-}
-
-double GlfwSquare::getSpdX()
-{
-    return D_CMx;
-}
-
-double GlfwSquare::getSpdY()
-{
-    return D_CMy;
-}
-
-double GlfwSquare::getAngVelocity()
-{
-    return D_rotation;
-}
-
-double GlfwSquare::getInertia()
-{
-    return inertia;
-}
-
-float GlfwSquare::getMass()
-{
-    return mass;
 }

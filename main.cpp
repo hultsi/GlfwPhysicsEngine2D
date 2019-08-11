@@ -48,6 +48,7 @@ int main(void)
     {
         // Calculate performance
         msPerFrame = gameControl.getPerformance();
+        std::cout << msPerFrame << "\n";
 
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);

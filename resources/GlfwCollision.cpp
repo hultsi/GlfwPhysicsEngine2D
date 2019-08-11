@@ -107,11 +107,11 @@ std::vector<GlfwSquare *> GlfwCollision::preventPenetration(GlfwSquare *sqObj)
 {
     double v, theta;
     std::vector<GlfwSquare *> collidingSquares;
-    while (this->withSquare(sqObj).size() != 0 && (sqObj->getSpdX() != 0 || sqObj->getSpdY() != 0))
+    while (this->withSquare(sqObj).size() != 0 && (sqObj->D_CMx != 0 || sqObj->D_CMy != 0))
     {
         collidingSquares = this->withSquare(sqObj);
-        v = std::sqrt(sqObj->getSpdX() * sqObj->getSpdX() + sqObj->getSpdY() + sqObj->getSpdY());
-        theta = std::atan2(sqObj->getSpdY(), sqObj->getSpdX());
+        v = std::sqrt(sqObj->D_CMx * sqObj->D_CMx + sqObj->D_CMy + sqObj->D_CMy);
+        theta = std::atan2(sqObj->D_CMy, sqObj->D_CMx);
         v -= 1;
         if (std::abs(v) < 1)
         {
