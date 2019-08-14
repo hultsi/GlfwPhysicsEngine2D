@@ -36,7 +36,7 @@ int main(void)
     GlfwSquare *sq = gameControl.createObject(GlfwSquare(470, 440, 200, 60, 0, false, 20));
     sq->setVelocity(3, 0);
     gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
-    gameControl.createObject(GlfwSquare(760, 350, 280, 60, M_PI / 2, false, 120));
+    gameControl.createObject(GlfwSquare(760, 350, 280, 60, M_PI / 3, false, 120));
     //gameControl.createObject(GlfwSquare(60, 650, 100, 30, 0, false, 120));
 
     // Reset performance calc
@@ -47,8 +47,8 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         // Calculate performance
-        msPerFrame = gameControl.getPerformance();
-        std::cout << msPerFrame << "\n";
+        msPerFrame = gameControl.getPerformance(false);
+        // std::cout << msPerFrame << "\n";
 
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
