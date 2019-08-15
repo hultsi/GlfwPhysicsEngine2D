@@ -7,7 +7,7 @@ GlfwGameControl::GlfwGameControl(float gravity)
     std::cout << "Game initialized" << std::endl;
 
     GlfwCollision collisionObj(this);
-    this->glfwCollision = collisionObj;
+    glfwCollision = collisionObj;
 }
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -38,15 +38,15 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
 
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
-    this->glfwSquareAll.emplace_back(obj);
+    glfwSquareAll.emplace_back(obj);
     glfwSquareAll.back().pointCollisionControl(&glfwCollision);
 
-    return &this->glfwSquareAll.back();
+    return &glfwSquareAll.back();
 }
 
 void GlfwGameControl::drawAll()
 {
-    for (int i = 0; i < this->glfwSquareAll.size(); i++)
+    for (int i = 0; i < glfwSquareAll.size(); i++)
     {
         glfwSquareAll.at(i).draw();
     }
@@ -54,7 +54,7 @@ void GlfwGameControl::drawAll()
 
 void GlfwGameControl::updateAll(double msPerFrame)
 {
-    for (int i = 0; i < this->glfwSquareAll.size(); i++)
+    for (int i = 0; i < glfwSquareAll.size(); i++)
     {
         glfwSquareAll.at(i).update(msPerFrame);
     }
@@ -62,26 +62,27 @@ void GlfwGameControl::updateAll(double msPerFrame)
 
 void GlfwGameControl::resetPerformance()
 {
-    this->lastTime = glfwGetTime();
-    this->nbFrames = 0;
+    lastTime = glfwGetTime();
+    nbFrames = 0;
 }
 
+// Returns milliseconds per each frame
 double GlfwGameControl::getPerformance(bool printPerformance)
 {
-    this->currentTime = glfwGetTime();
-    this->nbFrames++;
-    if (this->currentTime - this->lastTime >= 1)
+    currentTime = glfwGetTime();
+    nbFrames++;
+    if (currentTime - lastTime >= 1)
     {
         if (printPerformance)
             std::cout << "ms/frame " << 1000.0 / static_cast<double>(nbFrames) << std::endl;
-        this->SPF = 1000.0 / static_cast<double>(nbFrames);
+        SPF = 1000.0 / static_cast<double>(nbFrames);
         nbFrames = 0;
         lastTime += 1.0;
     }
-    return this->SPF;
+    return SPF;
 }
 
 std::vector<GlfwSquare> *GlfwGameControl::getSquares()
 {
-    return &this->glfwSquareAll;
+    return &glfwSquareAll;
 }

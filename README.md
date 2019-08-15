@@ -1,5 +1,8 @@
 # GLFW Physics engine
 
+Just started a small project to fine tune my understanding of cpp.
+Uses OpenGL3.x instead of 4.
+=======
 Just started a small project to fine tune my understanding of cpp. 
 Uses OpenGL3.x instead of 4.
 
@@ -21,6 +24,3 @@ Uses OpenGL3.x instead of 4.
        * Some new properties
        * And few other things
        * E.g., will take a lot of time
-
-
-For the project to work, get GLFW from https://www.glfw.org .

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include "C:/Users/miror/cpp-projects/glfw-3.3.bin.WIN32/include/GLFW/glfw3.h"
 #include "./EngineConstants.h"
 #include "./TypeDefs.h"
 
