@@ -44,11 +44,22 @@ GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
     return &glfwSquareAll.back();
 }
 
+DebugCircle *GlfwGameControl::createObject(DebugCircle obj)
+{
+    debugCircleAll.emplace_back(obj);
+
+    return &debugCircleAll.back();
+}
+
 void GlfwGameControl::drawAll()
 {
     for (int i = 0; i < glfwSquareAll.size(); i++)
     {
         glfwSquareAll.at(i).draw();
+    }
+    for (int i = 0; i < debugCircleAll.size(); i++)
+    {
+        debugCircleAll.at(i).draw();
     }
 }
 

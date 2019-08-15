@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-DebugCircle::DebugCircle(float x, float y, float radius) : x(x),y(y),radius(radius){
+DebugCircle::DebugCircle(float x, float y, float radius){
     float theta = 2*M_PI/16;
     for (int i = 0; i < 32; i += 4) {
         lineVertices[i] = x + radius*std::cos((i/2)*theta);

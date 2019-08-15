@@ -33,6 +33,7 @@ int main(void)
 
     // TODO: Abstractify shape definition
     // Define shapes
+
     GlfwSquare *sq = gameControl.createObject(GlfwSquare(470, 440, 200, 60, 0, false, 20));
     sq->setVelocity(3, 0);
     gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));

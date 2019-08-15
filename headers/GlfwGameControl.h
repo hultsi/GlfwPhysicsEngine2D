@@ -5,10 +5,14 @@
 class GlfwGameControl
 {
 public:
+    std::vector<GlfwSquare> glfwSquareAll;
+    std::vector<DebugCircle> debugCircleAll;
+
     GlfwGameControl(float gravity = 0);
     static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
     GlfwSquare *createObject(GlfwSquare obj);
+    DebugCircle *createObject(DebugCircle obj);
 
     std::vector<GlfwSquare> *getSquares();
     void resetPerformance();
@@ -17,7 +21,6 @@ public:
     void drawAll();
 
 private:
-    std::vector<GlfwSquare> glfwSquareAll;
 
     double lastTime = glfwGetTime();
     double currentTime;
