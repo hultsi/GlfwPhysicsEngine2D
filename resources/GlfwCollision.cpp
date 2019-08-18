@@ -1,6 +1,8 @@
 #include "./../headers/GlfwHeaders.h"
 #include <cmath>
 #include <iostream>
+#include <vector>
+#include <array>
 
 GlfwCollision::GlfwCollision()
 {
@@ -141,10 +143,10 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
     Vector2d *vectorHolder4;
 
     GlfwSquare *sq1, *sq2;
-    float theta, d1, d2, q1, q2;
-    std::vector<float> d;
-    std::vector<float> q;
-
+    float theta;
+    std::array<float,2> d;
+    std::array<float,2> q;
+    
     Vector2d P;
     for (int i = 0; i < squareOthers.size(); i++) //loop over squares
     {
@@ -178,8 +180,8 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                 // Here d2 = d1+width OR d2 = d1+height
                 vectorHolder1 = &coords1.at(j);
                 vectorHolder2 = &coords1.at(j + 1);
-                d.emplace_back(coords1.at(j).dot(P));
-                d.emplace_back(coords1.at(j + 1).dot(P));
+                d.at(0) = coords1.at(j).dot(P);
+                d.at(1) = coords1.at(j + 1).dot(P);
                 if (d.at(1) < d.at(0))
                 {
                     d.at(0) = d.at(1);
@@ -191,24 +193,24 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                 // Find min-max projections from second square
                 vectorHolder3 = &coords2.at(0);
                 vectorHolder4 = &coords2.at(0);
-                q1 = coords2.at(0).dot(P);
-                q2 = coords2.at(0).dot(P);
+                q.at(0) = coords2.at(0).dot(P);
+                q.at(1) = coords2.at(0).dot(P);
                 for (int k = 1; k < 4; k++)
                 {
-                    if (coords2.at(k).dot(P) < q1)
+                    if (coords2.at(k).dot(P) < q.at(0))
                     {
-                        q1 = coords2.at(k).dot(P);
+                        q.at(0) = coords2.at(k).dot(P);
                         vectorHolder3 = &coords2.at(k);
                     }
-                    if (coords2.at(k).dot(P) > q2)
+                    if (coords2.at(k).dot(P) > q.at(1))
                     {
-                        q2 = coords2.at(k).dot(P);
+                        q.at(1) = coords2.at(k).dot(P);
                         vectorHolder4 = &coords2.at(k);
                     }
                 }
                 // Check if there's overlap on the projected 1D line
-                if (q1 >= d.at(0) && q1 <= d.at(1) || q2 >= d.at(0) && q2 <= d.at(1) ||
-                    d.at(0) >= q1 && d.at(0) <= q2 || d.at(1) >= q1 && d.at(1) <= q2)
+                if (q.at(0) >= d.at(0) && q.at(0) <= d.at(1) || q.at(1) >= d.at(0) && q.at(1) <= d.at(1) ||
+                    d.at(0) >= q.at(0) && d.at(0) <= q.at(1) || d.at(1) >= q.at(0) && d.at(1) <= q.at(1))
                 {
                     // Collision happens in this projection
                     // do something?
@@ -218,17 +220,12 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                     // Collision is not happening with these squares
                     // This should only happen for one projection in _almost_ all cases
                     // since we know collision has happened already.
-                    //std::cout << "x1: " << coords1.at(j).x << " and y1: " << coords1.at(j).y << "\n";
-                    //std::cout << "x2: " << coords1.at(j + 1).x << " and y2: " << coords1.at(j + 1).y << "\n";
-                    //std::cout << "x3: " << vectorHolder1->x << " and y3: " << vectorHolder1->y << "\n";
-                    //std::cout << "x4: " << vectorHolder2->x << " and y4: " << vectorHolder2->y << "\n";
-
                     //ASDASD make better
                     // TODO: Abstractify following smallest distance algorithm
                     std::vector<Vector2d *> points;
                     float dist, dist1, dist2;
-                    dist1 = std::abs(d.at(0) - q1);
-                    dist2 = std::abs(d.at(0) - q2);
+                    dist1 = std::abs(d.at(0) - q.at(0));
+                    dist2 = std::abs(d.at(0) - q.at(1));
                     if (dist1 < dist2)
                     {
                         dist = dist1;
@@ -241,8 +238,8 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                         points.emplace_back(vectorHolder2);
                         points.emplace_back(vectorHolder4);
                     }
-                    dist1 = std::abs(d.at(1) - q1);
-                    dist2 = std::abs(d.at(1) - q2);
+                    dist1 = std::abs(d.at(1) - q.at(0));
+                    dist2 = std::abs(d.at(1) - q.at(1));
                     if (dist1 < dist)
                     {
                         points.at(0) = vectorHolder1;
