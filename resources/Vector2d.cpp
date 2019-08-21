@@ -50,14 +50,14 @@ bool Vector2d::operator!=(const Vector2d &param)
     }
 }
 
-float Vector2d::dot(Vector2d &param)
+float Vector2d::dot(const Vector2d &param) const
 {
     float val;
     val = this->x * param.x + this->y * param.y;
     return val;
 }
 
-Vector2d Vector2d::cross(Vector2d &param)
+Vector2d Vector2d::cross(const Vector2d &param) const
 {
     Vector2d vec;
     vec.x = this->x * param.y;

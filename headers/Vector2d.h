@@ -12,8 +12,8 @@ public:
     bool operator==(const Vector2d &param);
     bool operator!=(const Vector2d &param);
 
-    float dot(Vector2d &param);
-    Vector2d cross(Vector2d &param);
+    float dot(const Vector2d &param) const;
+    Vector2d cross(const Vector2d &param) const;
 
     float x, y;
 

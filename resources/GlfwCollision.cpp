@@ -219,38 +219,11 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                     // Collision is not happening with these squares
                     // This should only happen for one projection in _almost_ all cases
                     // since we know collision has happened already.
-                    //ASDASD make better
-                    // TODO: Abstractify following smallest distance algorithm
-                    std::vector<Vector2d *> points;
-                    float dist, dist1, dist2;
-                    dist1 = std::abs(coords1.at(indSq1[0]).dot(P) - coords2.at(indSq2[0]).dot(P));
-                    dist2 = std::abs(coords1.at(indSq1[0]).dot(P) - coords2.at(indSq2[3]).dot(P));
-                    if (dist1 < dist2)
-                    {
-                        dist = dist1;
-                        points.emplace_back(&coords1.at(indSq1[0]));
-                        points.emplace_back(&coords2.at(indSq2[0]));
+                    std::vector<Vector2d> points = collidingPoints(coords1,indSq1,coords2,indSq2,P);
+                    //std::cout << points.size() << "\n";
+                    for (int i = 0; i < points.size(); ++i) {
+                        gameControl->createObject(DebugCircle(points[i].x,points[i].y,10));    
                     }
-                    else
-                    {
-                        dist = dist2;
-                        points.emplace_back(&coords1.at(indSq1[1]));
-                        points.emplace_back(&coords2.at(indSq2[3]));
-                    }
-                    dist1 = std::abs(coords1.at(indSq1[1]).dot(P) - coords2.at(indSq2[0]).dot(P));
-                    dist2 = std::abs(coords1.at(indSq1[1]).dot(P) - coords2.at(indSq2[3]).dot(P));
-                    if (dist1 < dist)
-                    {
-                        points.at(0) = &coords1.at(indSq1[0]);
-                        points.at(1) = &coords2.at(indSq2[0]);
-                    }
-                    else if (dist2 < dist)
-                    {
-                        points.at(0) = &coords1.at(indSq1[1]);
-                        points.at(1) = &coords2.at(indSq2[3]);
-                    }
-
-                    gameControl->createObject(DebugCircle(points.at(1)->x,points.at(1)->y,10));
                     j = -1;
                     n = -1;
                 }
@@ -268,8 +241,49 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
     return 0;
 }
 
-std::vector<Vector2d> GlfwCollision::collidingPoints(Coords &coords1, std::array<int,2> indSq1,
-                                Coords &coords2, std::array<int,4> indSq2)
+std::vector<Vector2d> GlfwCollision::collidingPoints(const Coords &coords1, const std::array<float,2> indSq1,
+                                const Coords &coords2, const std::array<float,4> indSq2, Vector2d P)
 {
+                    std::vector<Vector2d> points;
+                    float dist = 0;
+                    int ind = 0;
+                    for (int i = 0; i < indSq1.size(); ++i) {
+                        for (int k = 0; k < indSq2.size(); ++k) {
+                            dist = std::abs(coords1.at(indSq1[i]).dot(P) - coords2.at(indSq2[k]).dot(P));
+                            if (dist <= 1) {
+                                ind = i;
+                                points.emplace_back(coords1[indSq1[i]]);
+                                points.emplace_back(coords2[indSq2[k]]);
+                            }
+                        }   
+                    }
 
+                    float theta;
+                    if (points.size() > 2) {
+                        if (indSq1[ind] > indSq1[1-ind]) {
+                            points[2] = coords1[indSq1[ind]+1 % 4];
+                            theta = std::atan((coords1.at(indSq1[ind]).y - coords1.at(indSq1[1-ind]).y) / (coords1.at(indSq1[ind]).x - coords1.at(indSq1[1-ind]).x));
+                        } else {
+                            theta = std::atan((coords1.at(indSq1[1-ind]).y - coords1.at(indSq1[ind]).y) / (coords1.at(indSq1[1-ind]).x - coords1.at(indSq1[ind]).x));
+                            points[2] = coords1[indSq1[ind]-1 % 4];
+                        }
+                        
+                        P.x = std::cos(theta+M_PI/2);
+                        P.y = std::sin(theta+M_PI/2);
+
+                        Vector2d p;
+                        for (int k = 0; k < 3; ++k)
+                        {
+                            if (points[k].dot(P) > points[k+1].dot(P)) {
+                                p = points[k];
+                                points[k] = points[k+1];
+                                points[k+1] = p;
+                                k = 0;
+                            }
+                        }
+                        //points.erase(points.begin());
+                        
+                    }
+
+                    return points;
 };

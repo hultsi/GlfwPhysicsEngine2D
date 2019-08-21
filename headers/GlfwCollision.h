@@ -12,8 +12,9 @@ public:
     std::vector<GlfwSquare *> preventPenetration(GlfwSquare *sqObj);
     float pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquare *> squareOthers);
 
-    std::vector<Vector2d> collidingPoints(Coords &coords1, std::array<int,2> indSq1,
-                                            Coords &coords2, std::array<int,4> indSq2);
+    std::vector<Vector2d> collidingPoints(const Coords &coords1, const std::array<float,2> indSq1,
+                                            const Coords &coords2, const std::array<float,4> indSq2,
+                                            Vector2d P);
 
 private:
     GlfwGameControl *gameControl;
