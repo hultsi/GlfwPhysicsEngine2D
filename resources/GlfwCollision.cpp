@@ -131,11 +131,12 @@ std::vector<GlfwSquare *> GlfwCollision::preventPenetration(GlfwSquare *sqObj)
 }
 
 // Find separating line using SAT and see which point(s) are very close to that line
-float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquare *> squareOthers)
+std::vector<Vector2d> GlfwCollision::pointsOfCollision(GlfwSquare *square1, std::vector<GlfwSquare *> squareOthers)
 {
     bool collision = true; // Algorithm "assumes" for collision initially
     Coords coords1;
     Coords coords2;
+    std::vector<Vector2d> points;
 
     GlfwSquare *sq1, *sq2;
     float theta;
@@ -219,7 +220,7 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
                     // Collision is not happening with these squares
                     // This should only happen for one projection in _almost_ all cases
                     // since we know collision has happened already.
-                    std::vector<Vector2d> points = collidingPoints(coords1,indSq1,coords2,indSq2,P);
+                    points = collidingPoints(coords1,indSq1,coords2,indSq2,P,theta);
                     //std::cout << points.size() << "\n";
                     for (int i = 0; i < points.size(); ++i) {
                         gameControl->createObject(DebugCircle(points[i].x,points[i].y,10));    
@@ -238,15 +239,17 @@ float GlfwCollision::pointOfCollision(GlfwSquare *square1, std::vector<GlfwSquar
         }
     }
 
-    return 0;
+    return points;
 }
 
 std::vector<Vector2d> GlfwCollision::collidingPoints(const Coords &coords1, const std::array<float,2> indSq1,
-                                const Coords &coords2, const std::array<float,4> indSq2, Vector2d P)
+                                const Coords &coords2, const std::array<float,4> indSq2, Vector2d P, const float theta)
 {
                     std::vector<Vector2d> points;
                     float dist = 0;
                     int ind = 0;
+                    // Find colliding points. If single points is found, points.size() = 2,
+                    // otherwise points.size() = 4
                     for (int i = 0; i < indSq1.size(); ++i) {
                         for (int k = 0; k < indSq2.size(); ++k) {
                             dist = std::abs(coords1.at(indSq1[i]).dot(P) - coords2.at(indSq2[k]).dot(P));
@@ -257,32 +260,33 @@ std::vector<Vector2d> GlfwCollision::collidingPoints(const Coords &coords1, cons
                             }
                         }   
                     }
-
-                    float theta;
+                    
                     if (points.size() > 2) {
+                        // points[2] will be same as points[0] due to the projection
+                        // method and that needs to be fixed
                         if (indSq1[ind] > indSq1[1-ind]) {
                             points[2] = coords1[indSq1[ind]+1 % 4];
-                            theta = std::atan((coords1.at(indSq1[ind]).y - coords1.at(indSq1[1-ind]).y) / (coords1.at(indSq1[ind]).x - coords1.at(indSq1[1-ind]).x));
                         } else {
-                            theta = std::atan((coords1.at(indSq1[1-ind]).y - coords1.at(indSq1[ind]).y) / (coords1.at(indSq1[1-ind]).x - coords1.at(indSq1[ind]).x));
                             points[2] = coords1[indSq1[ind]-1 % 4];
                         }
-                        
                         P.x = std::cos(theta+M_PI/2);
                         P.y = std::sin(theta+M_PI/2);
-
                         Vector2d p;
+                        // Bubble sort points based on the projection points.dot(P)
                         for (int k = 0; k < 3; ++k)
                         {
                             if (points[k].dot(P) > points[k+1].dot(P)) {
                                 p = points[k];
                                 points[k] = points[k+1];
                                 points[k+1] = p;
-                                k = 0;
+                                k = -1;
                             }
                         }
-                        //points.erase(points.begin());
-                        
+                        // Remove smallest and largest value
+                        points.erase(points.end()-1);
+                        points.erase(points.begin());                        
+                    } else {
+                        points.erase(points.begin());
                     }
 
                     return points;

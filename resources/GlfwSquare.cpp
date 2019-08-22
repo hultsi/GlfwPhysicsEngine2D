@@ -197,7 +197,7 @@ void GlfwSquare::handleCollision()
     {
         collision = true;
         std::vector<GlfwSquare *> squares = glfwCollision->preventPenetration(this);
-        float pointOfCollision = glfwCollision->pointOfCollision(this, squares);
+        std::vector<Vector2d> points = glfwCollision->pointsOfCollision(this, squares);
     }
     else
     {
