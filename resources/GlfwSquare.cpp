@@ -48,16 +48,10 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float rectWidth, fl
         applyForce = 1;
         // Add md^2 to moment of inertia to gain the inertia over some other axis than CoM
         // m = mass & d = distance between the axes
-        // 0.0001 is = 0.01^2 = conversion from cm to meters
-        inertia = 0.0001 * mass * (height * height + width * width) / 12;
+        // Multiply with 0.0001? 0.01^2 = conversion from cm to meters
+        inertia = mass * (height * height + width * width) / 12;
     }
 };
-
-void GlfwSquare::setVelocity(double xVel, double yVel)
-{
-    D_CMx = xVel;
-    D_CMy = yVel;
-}
 
 Coords GlfwSquare::getCoordinates(bool addVelocity)
 {
@@ -110,9 +104,12 @@ void GlfwSquare::rotate(float rad)
 //Happens BEFORE draw() and during every loop
 void GlfwSquare::update(double dt)
 {
-    updateForces(dt);
-    updateAcceleration(dt);
-    updateVelocity(dt);
+    if (applyForce) {
+        updateImpulse(dt);
+        updateForces(dt);
+        updateAcceleration(dt);
+        updateVelocity(dt);
+    }
     handleCollision();
     updatePosition(dt);
 }
@@ -146,13 +143,16 @@ float GlfwSquare::distanceFromCM(float &x, float &y)
     return std::sqrt((CMx - x) * (CMx - x) + (CMy - y) * (CMy - y));
 }
 
+void GlfwSquare::updateImpulse(double dt)
+{
+
+}
+
 void GlfwSquare::updateForces(double dt)
 {
     CMFx = 0;
-    CMFx *= (applyForce) / 30;
 
     CMFy = 0;
-    CMFy = 0 * (applyForce) / 30;
 }
 
 void GlfwSquare::updateAcceleration(double dt)
@@ -205,47 +205,9 @@ void GlfwSquare::handleCollision()
     }
 }
 
-void GlfwSquare::collisionHandler1()
+void GlfwSquare::collisionHandler()
 {
-    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
-    float m1 = mass;
-    float m2 = squares.at(0)->mass;
-    double v1 = D_CMx;
-    double v2 = squares.at(0)->D_CMx;
-    double v1FinalX = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
-    double D_CMx2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
-    v1 = D_CMy;
-    v2 = squares.at(0)->D_CMy;
-    double v1FinalY = (m1 * v1 - m2 * (v1 - 2 * v2)) / (m1 + m2);
-    double D_CMy2 = (m2 * v2 + m1 * (2 * v1 - v2)) / (m1 + m2);
-    while (squares.size() != 0 && D_CMx != 0)
-    {
-        double v = std::sqrt(D_CMx * D_CMx + D_CMy + D_CMy);
-        double theta = std::atan(D_CMy / D_CMx);
-        v -= 1;
-        D_CMx = v * std::cos(theta);
-        D_CMy = v * std::sin(theta);
-        squares = glfwCollision->withSquare(this);
-        std::cout << D_CMx << std::endl;
-        std::cout << D_CMy << std::endl;
-    }
-    D_CMx = v1FinalX;
-    D_CMy = v1FinalY;
-    squares.at(0)->setVelocity(D_CMx2, D_CMy2);
-}
-
-void GlfwSquare::collisionHandler2()
-{
-    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
-    float m1 = mass;
-    float m2 = squares.at(0)->mass;
-    double v1 = std::sqrt(D_CMx * D_CMx + D_CMy * D_CMy);
-    double v2 = std::sqrt(squares.at(0)->D_CMx * squares.at(0)->D_CMx +
-                          squares.at(0)->D_CMy * squares.at(0)->D_CMy);
-    double omega1 = D_rotation;
-    double omega2 = squares.at(0)->D_rotation;
-    double I1 = inertia;
-    double I2 = squares.at(0)->inertia;
+    
 }
 
 void GlfwSquare::setSpdX(double spd, bool increase)

@@ -15,6 +15,7 @@ public:
     float radius;
     float mass;
     float largeCenterAngle, smallCenterAngle;
+    float impulse;
     double CMx, CMy, CMFx, CMFy;
     double D_CMx, D_CMy;
     double DD_CMx, DD_CMy;
@@ -27,7 +28,6 @@ public:
     GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,
                double rectRotation = 0, bool isStatic = true, float mass = 999);
 
-    void setVelocity(double xVel = 0, double yVel = 0);
     void setSpdX(double spd, bool increase = false);
     void setSpdY(double spd, bool increase = false);
 
@@ -42,6 +42,7 @@ public:
     void pointCollisionControl(GlfwCollision *collisionObj); // Used to assign GlfwCollision object pointer
 
 private:
+    void updateImpulse(double dt);
     void updateForces(double dt);
     void updateAcceleration(double dt);
     void updateVelocity(double dt);
@@ -50,8 +51,7 @@ private:
     void updatePosition(double dt);
     void handleCollision();
 
-    void collisionHandler1();
-    void collisionHandler2();
+    void collisionHandler();
 
     float distanceFromCM(float &x, float &y);
 

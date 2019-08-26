@@ -35,7 +35,7 @@ int main(void)
     // Define shapes
 
     GlfwSquare *sq = gameControl.createObject(GlfwSquare(470, 440, 200, 60, 0, false, 20));
-    sq->setVelocity(3, 0);
+    sq->D_CMx = 3;
     gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
     gameControl.createObject(GlfwSquare(760, 350, 280, 60, M_PI / 2, false, 120));
     //gameControl.createObject(GlfwSquare(60, 650, 100, 30, 0, false, 120));
