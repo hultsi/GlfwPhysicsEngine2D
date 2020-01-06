@@ -10,6 +10,19 @@ Vector2d::Vector2d(float x, float y)
     this->y = y;
 }
 
+void Vector2d::rotate(double radians)
+{
+    float xPrev = x;
+    x = x * std::cos(radians) - y * std::sin(radians);
+    y = xPrev * std::sin(radians) + y * std::cos(radians);
+}
+
+void Vector2d::normalize()
+{
+    x = x / std::sqrt(x * x + y * y);
+    y = y / std::sqrt(x * x + y * y);
+}
+
 Vector2d Vector2d::operator+(const Vector2d &param)
 {
     Vector2d newVec;
@@ -25,6 +38,15 @@ Vector2d Vector2d::operator-(const Vector2d &param)
     newVec.y = this->y - param.y;
     return newVec;
 }
+
+/*template <class T>
+Vector2d Vector2d::operator*(const T param)
+{
+    Vector2d newVec;
+    newVec.x = param * this->x;
+    newVec.y = param * this->y;
+    return newVec;
+}*/
 
 bool Vector2d::operator==(const Vector2d &param)
 {

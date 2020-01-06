@@ -17,6 +17,7 @@
       "command": "g++",
       "args": [
         "main.cpp",
+        "./resources/DebugLine.cpp",
         "./resources/DebugCircle.cpp",
         "./resources/GlfwSquare.cpp",
         "./resources/GlfwGameControl.cpp",
@@ -26,7 +27,8 @@
         "-o",
         "build/out.exe",
         //"-LC:/Users/The bum/cpp-projects/GlfwPhysicsEngine2D/glfw-3.3.bin.WIN32/lib-mingw",
-        "-LC:/Users/ruopsa/Desktop/project/glfw-3.3.bin.WIN32/lib-mingw",
+        //"-LC:/Users/ruopsa/Desktop/project/glfw-3.3.bin.WIN32/lib-mingw",
+        "-LC:/Users/miror/cpp-projects/glfw-3.3.bin.WIN32/lib-mingw",
         "-lglfw3",
         "-lopengl32",
         "-lgdi32"

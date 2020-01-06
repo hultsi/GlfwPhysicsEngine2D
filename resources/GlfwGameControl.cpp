@@ -38,6 +38,7 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
 
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
+    obj.setGameControl(this);
     glfwSquareAll.emplace_back(obj);
     glfwSquareAll.back().pointCollisionControl(&glfwCollision);
 
@@ -51,6 +52,15 @@ DebugCircle *GlfwGameControl::createObject(DebugCircle obj)
     return &debugCircleAll.back();
 }
 
+DebugLine *GlfwGameControl::createObject(DebugLine obj)
+{
+    int a;
+    std::cin >> a;
+    debugLineAll.emplace_back(obj); // `????????????????????????
+    std::cin >> a;
+    return &debugLineAll.back();
+}
+
 void GlfwGameControl::drawAll()
 {
     for (int i = 0; i < glfwSquareAll.size(); i++)
@@ -60,6 +70,10 @@ void GlfwGameControl::drawAll()
     for (int i = 0; i < debugCircleAll.size(); i++)
     {
         debugCircleAll.at(i).draw();
+    }
+    for (int i = 0; i < debugLineAll.size(); i++)
+    {
+        debugLineAll.at(i).draw();
     }
 }
 

@@ -31,13 +31,19 @@ int main(void)
     glfwSetWindowUserPointer(window, (void *)&gameControl);
     glfwSetKeyCallback(window, GlfwGameControl::keyCallback);
 
-    // TODO: Abstractify shape definition
     // Define shapes
+    GlfwSquare *sq = gameControl.createObject(GlfwSquare(430, 440, 200, 60, 20, false, 30));
+    sq->velocity.x = 4;
+    sq->velocity.y = -1;
+    GlfwSquare *sq2 = gameControl.createObject(GlfwSquare(720, 280, 280, 60, M_PI / 2, false, 70));
 
-    GlfwSquare *sq = gameControl.createObject(GlfwSquare(470, 440, 200, 60, 0, false, 20));
-    sq->D_CMx = 3;
-    gameControl.createObject(GlfwSquare(1, 1, W_WIDTH - 1, 80));
-    gameControl.createObject(GlfwSquare(760, 350, 280, 60, M_PI / 2, false, 120));
+    GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(90, 50, W_WIDTH - 91, 80, 0, false, 170));
+    sq3->velocity.x = 1;
+    sq3->velocity.y = 1;
+    GlfwSquare *sq4 = gameControl.createObject(GlfwSquare(100, 700, 600, 100, 0, false, 60));
+    sq4->velocity.y = -.5;
+    //gameControl.createObject(GlfwSquare(500, 240, 200, 60, 0, false, 20));
+
     //gameControl.createObject(GlfwSquare(60, 650, 100, 30, 0, false, 120));
 
     // Reset performance calc
