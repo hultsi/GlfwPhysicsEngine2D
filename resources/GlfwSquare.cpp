@@ -7,25 +7,25 @@
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float rectWidth, float rectHeight,
                        double rectRotation, bool isStatic, float mass)
 {
-    x1 = bottomLeftX;              // these are cm --> convert to meters when used
-    y1 = bottomLeftY;              // these are cm --> convert to meters when used
-    x3 = bottomLeftX + rectWidth;  // these are cm --> convert to meters when used
-    y3 = bottomLeftY + rectHeight; // these are cm --> convert to meters when used
+    corners[0].x = bottomLeftX;              // these are cm --> convert to meters when used
+    corners[0].y = bottomLeftY;              // these are cm --> convert to meters when used
+    corners[2].x = bottomLeftX + rectWidth;  // these are cm --> convert to meters when used
+    corners[2].y = bottomLeftY + rectHeight; // these are cm --> convert to meters when used
 
-    x2 = x3;
-    y2 = y1;
-    x4 = x1;
-    y4 = y3;
+    corners[1].x = corners[2].x;
+    corners[1].y = corners[0].y;
+    corners[3].x = corners[0].x;
+    corners[3].y = corners[2].y;
 
-    width = x3 - x1;  // these are cm --> convert to meters when used
-    height = y3 - y1; // these are cm --> convert to meters when used
+    width = corners[2].x - corners[0].x;  // these are cm --> convert to meters when used
+    height = corners[2].y - corners[0].y; // these are cm --> convert to meters when used
 
     radius = std::sqrt(width * width / 4 + height * height / 4);
     largeCenterAngle = 2 * std::acos(height / 2 / radius);
     smallCenterAngle = M_PI - largeCenterAngle;
 
-    position.x = x1 + width / 2;
-    position.y = y1 + height / 2;
+    position.x = corners[0].x + width / 2;
+    position.y = corners[0].y + height / 2;
 
     force.x = 0;
     force.y = 0;
@@ -56,7 +56,7 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float rectWidth, fl
 
 void GlfwSquare::setGameControl(GlfwGameControl *gameControl)
 {
-    gameControl = gameControl;
+    this->gameControl = gameControl;
 }
 
 Coords GlfwSquare::getCoordinates(bool addVelocity)
@@ -89,17 +89,17 @@ void GlfwSquare::move(float xInc, float yInc)
     position.x += xInc;
     position.y += yInc;
 
-    x1 = position.x + radius * std::cos(rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
-    y1 = position.y + radius * std::sin(rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
+    corners[0].x = position.x + radius * std::cos(rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
+    corners[0].y = position.y + radius * std::sin(rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
 
-    x2 = position.x + radius * std::cos(rotation + 2 * largeCenterAngle + smallCenterAngle * 3 / 2);
-    y2 = position.y + radius * std::sin(rotation + 2 * largeCenterAngle + smallCenterAngle * 3 / 2);
+    corners[1].x = position.x + radius * std::cos(rotation + 2 * largeCenterAngle + smallCenterAngle * 3 / 2);
+    corners[1].y = position.y + radius * std::sin(rotation + 2 * largeCenterAngle + smallCenterAngle * 3 / 2);
 
-    x3 = position.x + radius * std::cos(rotation + smallCenterAngle / 2);
-    y3 = position.y + radius * std::sin(rotation + smallCenterAngle / 2);
+    corners[2].x = position.x + radius * std::cos(rotation + smallCenterAngle / 2);
+    corners[2].y = position.y + radius * std::sin(rotation + smallCenterAngle / 2);
 
-    x4 = position.x + radius * std::cos(rotation + largeCenterAngle + smallCenterAngle / 2);
-    y4 = position.y + radius * std::sin(rotation + largeCenterAngle + smallCenterAngle / 2);
+    corners[3].x = position.x + radius * std::cos(rotation + largeCenterAngle + smallCenterAngle / 2);
+    corners[3].y = position.y + radius * std::sin(rotation + largeCenterAngle + smallCenterAngle / 2);
 }
 
 void GlfwSquare::rotate(float rad)
@@ -112,28 +112,25 @@ void GlfwSquare::update(double dt)
 {
     if (applyForce)
     {
-        // std::cout << this << "\n";
         updateForces(dt);
         updateAcceleration(dt);
         updateVelocity(dt);
     }
-    collision = true;
-    while (collision)
-        handleCollision();
+    handleCollision();
     updatePosition(dt);
 }
 //Happens AFTER update() and during every loop
 void GlfwSquare::draw()
 {
     GLfloat lineVertices[] = {
-        x1, y1,
-        x2, y2,
-        x2, y2,
-        x3, y3,
-        x3, y3,
-        x4, y4,
-        x4, y4,
-        x1, y1};
+        corners[0].x, corners[0].y,
+        corners[1].x, corners[1].y,
+        corners[1].x, corners[1].y,
+        corners[2].x, corners[2].y,
+        corners[2].x, corners[2].y,
+        corners[3].x, corners[3].y,
+        corners[3].x, corners[3].y,
+        corners[0].x, corners[0].y};
 
     glColor3f(1.0f, 1.0f, 1.0f);
     if (collision)
@@ -168,46 +165,6 @@ void GlfwSquare::calculateImpulse(std::vector<GlfwSquare *> squares, std::vector
 
         velocity.x = previousVelocity.x + invMass * impulseVector.x;
         velocity.y = previousVelocity.y + invMass * impulseVector.y;
-
-        //TODO: DO BETTER
-        //TODO FIRSST: FIX INFINITE LOOP???
-        P = normal;
-        P.rotate(-M_PI / 2);
-        float d1 = position.dot(P);
-        float d2 = points[0].dot(P);
-        float d = (d2 - d1);
-        if (P.y * d < 0)
-            d = -1 * d;
-        //std::cout << P.y * d << "\n";
-        D_rotation += d * std::sqrt(impulseVector.dot(impulseVector)) * invMass * invMass * 0.003;
-
-        P.rotate(rotation - squares[i]->rotation);
-        d1 = squares[i]->position.dot(P);
-        d2 = points[0].dot(P);
-        d = (d2 - d1);
-        if (P.y * d < 0)
-            d = -1 * d;
-
-        /*float ang = M_PI / 2 - (rotation - squares[i]->rotation);
-        impulseVector = impulseVector * std::sin(ang);
-        squares[i]->D_rotation += d * std::sqrt(impulseVector.dot(impulseVector)) * squares[i]->invMass * squares[i]->invMass * 0.003;
-        P.rotate(rotation - squares[i]->rotation - M_PI / 2);
-        d1 = squares[i]->position.dot(P);
-        d2 = points[0].dot(P);
-        d = (d2 - d1);
-        if (P.y * d < 0)
-            d = -1 * d;
-        squares[i]->D_rotation -= d * std::sqrt(impulseVector.dot(impulseVector)) * squares[i]->invMass * squares[i]->invMass * 0.003;
-        std::cout << squares[i]->D_rotation << "\n";*/
-        std::cout << D_rotation << "\n";
-        std::cout << velocity.x << "\n";
-        std::cout << velocity.y << "\n";
-        std::cout << squares[i]->velocity.x << "\n";
-        std::cout << squares[i]->velocity.y << "\n";
-        float a;
-        std::cin >> a;
-        if (a != 1)
-            D_rotation = a;
     }
 }
 
@@ -250,21 +207,22 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 
 void GlfwSquare::handleCollision()
 {
-    std::vector<GlfwSquare *> squares = glfwCollision->withSquare(this);
-    if (glfwCollision->withSquare(this).size() != 0)
+    collision = false;
+    std::vector<GlfwSquare> colliders = glfwCollision->withConvex(this, *gameControl->getSquares());
+
+    if (colliders.size() != 0)
     {
+        colliders = glfwCollision->preventPenetration(this, colliders);
+        glfwCollision->pointsOfCollision(this, colliders);
+        /*
         collision = true;
         // Save velocity here. Function preventPenetration() changes it.
-        glfwCollision->preventPenetration(this);
         // pointsOfCollision() Also returns normal at points[points.size()-1]
         std::vector<Vector2d> points = glfwCollision->pointsOfCollision(this, squares);
         // std::cout << "points: " << points.size() << "\n";
         gameControl->createObject(DebugLine(200, 200, 100, 100));
         calculateImpulse(squares, points);
-    }
-    else
-    {
-        collision = false;
+        */
     }
 }
 

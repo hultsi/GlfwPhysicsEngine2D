@@ -8,7 +8,8 @@ public:
     Vector2d();
     Vector2d(float x, float y);
 
-    //TODO: ABSTRACTIFY TO .cpp
+    Vector2d operator+(const Vector2d &param);
+    Vector2d operator-(const Vector2d &param);
     template <class T>
     Vector2d operator*(const T param)
     {
@@ -17,9 +18,7 @@ public:
         newVec.y = param * this->y;
         return newVec;
     }
-
-    Vector2d operator+(const Vector2d &param);
-    Vector2d operator-(const Vector2d &param);
+    Vector2d operator*(const Vector2d &param);
     bool operator==(const Vector2d &param);
     bool operator!=(const Vector2d &param);
 
@@ -28,6 +27,9 @@ public:
 
     void rotate(double radians);
     void normalize();
+    float length() const;
+    float angle() const;
+    float angleDeg() const;
 
     float x, y;
 

@@ -39,14 +39,13 @@ Vector2d Vector2d::operator-(const Vector2d &param)
     return newVec;
 }
 
-/*template <class T>
-Vector2d Vector2d::operator*(const T param)
+Vector2d Vector2d::operator*(const Vector2d &param)
 {
     Vector2d newVec;
-    newVec.x = param * this->x;
-    newVec.y = param * this->y;
+    newVec.x = this->x * param.x;
+    newVec.y = this->y * param.y;
     return newVec;
-}*/
+}
 
 bool Vector2d::operator==(const Vector2d &param)
 {
@@ -77,6 +76,27 @@ float Vector2d::dot(const Vector2d &param) const
     float val;
     val = this->x * param.x + this->y * param.y;
     return val;
+}
+
+float Vector2d::length() const
+{
+    float val;
+    val = std::sqrt(this->x * this->x + this->y * this->y);
+    return val;
+}
+
+float Vector2d::angle() const
+{
+    float val;
+    val = std::atan2(this->y, this->x);
+    return (val > 0 ? val : (2 * M_PI + val));
+}
+
+float Vector2d::angleDeg() const
+{
+    float val;
+    val = std::atan2(this->y, this->x);
+    return (val > 0 ? val : (2 * M_PI + val)) * 360 / (2 * M_PI);
 }
 
 Vector2d Vector2d::cross(const Vector2d &param) const

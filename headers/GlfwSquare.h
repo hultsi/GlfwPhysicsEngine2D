@@ -2,6 +2,7 @@
 #include "./../headers/GlfwHeaders.h"
 #include <vector>
 #include <array>
+#include <unordered_map>
 
 class GlfwCollision;
 class GlfwGameControl;
@@ -9,9 +10,7 @@ class GlfwGameControl;
 class GlfwSquare
 {
 public:
-    //TODO maybe: Change coords to std::vector or std::array
-    //TODO: Change to public
-    float x1, y1, x2, y2, x3, y3, x4, y4;
+    std::array<Vector2d, 4> corners;
     float width, height;
     float radius;
     float mass, invMass;
@@ -26,6 +25,8 @@ public:
     double inertia = 0, momentum = 0, KE = 0, PE = 0;
     int applyForce = 0;
     bool collision = false;
+    std::unordered_map<GlfwSquare *, int> collisionWith; // -1 Not checked, 0 false, 1 true
+    std::unordered_map<GlfwSquare *, std::vector<Vector2d>> collidingPoints;
 
     GlfwSquare(){};
     GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,

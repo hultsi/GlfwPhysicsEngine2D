@@ -8,14 +8,13 @@ class GlfwCollision
 public:
     GlfwCollision();
     GlfwCollision(GlfwGameControl *gameControl);
-    std::vector<GlfwSquare *> withSquare(GlfwSquare *sqObj);
-    std::vector<GlfwSquare *> preventPenetration(GlfwSquare *sqObj);
-    std::vector<Vector2d> pointsOfCollision(GlfwSquare *square1, std::vector<GlfwSquare *> squareOthers);
+    std::vector<GlfwSquare> withConvex(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
 
-    std::vector<Vector2d> collidingPoints(const Coords &coords1, const std::array<float,2> indSq1,
-                                            const Coords &coords2, const std::array<float,4> indSq2,
-                                            Vector2d P, const float theta);
+    /* Also saves colliding points to sqObj */
+    std::vector<GlfwSquare> preventPenetration(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
+
+    void pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
 
 private:
-    GlfwGameControl *gameControl;
+    GlfwGameControl *gameControl = NULL;
 };

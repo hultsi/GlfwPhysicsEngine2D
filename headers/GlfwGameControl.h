@@ -17,6 +17,7 @@ public:
     DebugLine *createObject(DebugLine obj);
 
     std::vector<GlfwSquare> *getSquares();
+
     void resetPerformance();
     double getPerformance(bool printPerformance = true);
     void updateAll(double msPerFrame = 1);

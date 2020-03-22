@@ -6,8 +6,7 @@ GlfwGameControl::GlfwGameControl(float gravity)
 {
     std::cout << "Game initialized" << std::endl;
 
-    GlfwCollision collisionObj(this);
-    glfwCollision = collisionObj;
+    glfwCollision = GlfwCollision(this);
 }
 
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -38,8 +37,8 @@ void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int
 
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
-    obj.setGameControl(this);
     glfwSquareAll.emplace_back(obj);
+    glfwSquareAll.back().setGameControl(this);
     glfwSquareAll.back().pointCollisionControl(&glfwCollision);
 
     return &glfwSquareAll.back();
@@ -54,10 +53,8 @@ DebugCircle *GlfwGameControl::createObject(DebugCircle obj)
 
 DebugLine *GlfwGameControl::createObject(DebugLine obj)
 {
-    int a;
-    std::cin >> a;
-    debugLineAll.emplace_back(obj); // `????????????????????????
-    std::cin >> a;
+    debugLineAll.emplace_back(obj);
+
     return &debugLineAll.back();
 }
 
@@ -65,15 +62,15 @@ void GlfwGameControl::drawAll()
 {
     for (int i = 0; i < glfwSquareAll.size(); i++)
     {
-        glfwSquareAll.at(i).draw();
+        glfwSquareAll[i].draw();
     }
     for (int i = 0; i < debugCircleAll.size(); i++)
     {
-        debugCircleAll.at(i).draw();
+        debugCircleAll[i].draw();
     }
     for (int i = 0; i < debugLineAll.size(); i++)
     {
-        debugLineAll.at(i).draw();
+        debugLineAll[i].draw();
     }
 }
 
@@ -81,7 +78,7 @@ void GlfwGameControl::updateAll(double msPerFrame)
 {
     for (int i = 0; i < glfwSquareAll.size(); i++)
     {
-        glfwSquareAll.at(i).update(msPerFrame);
+        glfwSquareAll[i].update(msPerFrame);
     }
 }
 
