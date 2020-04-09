@@ -16,5 +16,12 @@ public:
     void pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
 
 private:
+    // Returns a vector that starts from 0 and has the same angle
+    // as the line drawn from point1 to point2
+    Vector2d getProjectionVector(Vector2d point1, Vector2d point2);
+
+    // TODO: Functions for getting min max projection for rect 1 and 2
+    //
+
     GlfwGameControl *gameControl = NULL;
 };

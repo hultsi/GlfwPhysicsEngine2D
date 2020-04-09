@@ -44,14 +44,7 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
             coords2 = sq2->getCoordinates(true);
             for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
             {
-                /* First square */
-                // Define P unit vector which is parallel
-                // to one of the sides of the square
-                // Square side angle
-                theta = std::atan((coords1.at(j + 1).y - coords1.at(j).y) / (coords1.at(j + 1).x - coords1.at(j).x));
-                // And finally P
-                P.x = std::cos(theta);
-                P.y = std::sin(theta);
+                P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
                 // Find min-max projections from first square
                 // Here d2 = d1+width OR d2 = d1+height
                 d1 = coords1.at(j).dot(P);
@@ -149,7 +142,7 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
 {
     Coords coords1;
     Coords coords2;
-    std::array<int, 2> coords2Ind;
+    std::array<int, 2> minMaxInd;
 
     GlfwSquare *sq1, *sq2;
     float theta, d1, d2, q1, q2;
@@ -173,16 +166,9 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
             }
             coords1 = sq1->getCoordinates(true);
             coords2 = sq2->getCoordinates(true);
-            for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
+            for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the rect
             {
-                /* First square */
-                // Define P unit vector which is parallel
-                // to one of the sides of the square
-                // Square side angle
-                theta = std::atan((coords1.at(j + 1).y - coords1.at(j).y) / (coords1.at(j + 1).x - coords1.at(j).x));
-                // And finally P
-                P.x = std::cos(theta);
-                P.y = std::sin(theta);
+                P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
                 // Find min-max projections from first square
                 // Here d2 = d1+width OR d2 = d1+height
                 d1 = coords1.at(j).dot(P);
@@ -195,30 +181,45 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
                 /* Second square */
                 // Find min-max projections from second square
                 q1 = coords2.at(0).dot(P);
+                minMaxInd[0] = 0;
                 q2 = coords2.at(0).dot(P);
+                minMaxInd[1] = 0;
                 for (int k = 1; k < 4; k++)
                 {
                     if (coords2.at(k).dot(P) < q1)
                     {
                         q1 = coords2.at(k).dot(P);
-                        coords2Ind[0] = k;
+                        minMaxInd[0] = k;
                     }
                     if (coords2.at(k).dot(P) > q2)
                     {
                         q2 = coords2.at(k).dot(P);
-                        coords2Ind[1] = k;
+                        minMaxInd[1] = k;
                     }
                 }
-                // Check if there's a point near a line
-                if (std::abs(d2 - q1) <= 1)
+                // Check if there's a point near a line and draw a debug circle
+                if ((q1 - d2) <= 1 && (q1 - d2) >= 0)
                 {
-                    gameControl->createObject(DebugCircle(coords2[coords2Ind[0]].x, coords2[coords2Ind[0]].y, 10));
+                    gameControl->createObject(DebugCircle(coords2[minMaxInd[0]].x, coords2[minMaxInd[0]].y, 10));
                 }
-                else if (std::abs(d1 - q2) <= 1)
+                else if ((d1 - q2) <= 1 && (d1 - q2) >= 0)
                 {
-                    gameControl->createObject(DebugCircle(coords2[coords2Ind[1]].x, coords2[coords2Ind[1]].y, 10));
+                    gameControl->createObject(DebugCircle(coords2[minMaxInd[1]].x, coords2[minMaxInd[1]].y, 10));
                 }
             }
         }
     }
+}
+
+Vector2d GlfwCollision::getProjectionVector(Vector2d point1, Vector2d point2)
+{
+    Vector2d P;
+    float theta;
+
+    theta = std::atan2((point2.y - point1.y), (point2.x - point1.x));
+    theta = (theta < 0 ? theta + 2 * M_PI : theta);
+    P.x = std::cos(theta);
+    P.y = std::sin(theta);
+
+    return P;
 }

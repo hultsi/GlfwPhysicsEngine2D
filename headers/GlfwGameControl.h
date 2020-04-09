@@ -5,6 +5,7 @@
 class GlfwGameControl
 {
 public:
+    //TODO: Change to maps
     std::vector<GlfwSquare> glfwSquareAll;
     std::vector<DebugCircle> debugCircleAll;
     std::vector<DebugLine> debugLineAll;

@@ -15,9 +15,9 @@ int main(void)
     sq->velocity.y = -1;
     GlfwSquare *sq2 = gameControl.createObject(GlfwSquare(720, 280, 280, 60, M_PI / 2, false, 70));
 
-    //GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(90, 50, W_WIDTH - 91, 80, 0, false, 170));
-    //sq3->velocity.x = 1;
-    //sq3->velocity.y = 1;
+    GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(330, 340, 100, 60, 50, false, 30));
+    sq3->velocity.x = 4;
+    sq3->velocity.y = -1;
     //GlfwSquare *sq4 = gameControl.createObject(GlfwSquare(100, 700, 600, 100, 0, false, 60));
     //sq4->velocity.y = -.5;
 
