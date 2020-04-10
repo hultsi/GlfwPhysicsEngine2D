@@ -20,8 +20,11 @@ private:
     // as the line drawn from point1 to point2
     Vector2d getProjectionVector(Vector2d point1, Vector2d point2);
 
-    // TODO: Functions for getting min max projection for rect 1 and 2
-    //
+    // Calculate projections of coords on the projVec
+    std::vector<float> getProjections(Coords coords, Vector2d projVec);
+
+    // Find min-max projection. Returns index [min, max].
+    std::array<int, 2> findMinMax(std::vector<float> arr);
 
     GlfwGameControl *gameControl = NULL;
 };

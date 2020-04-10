@@ -19,6 +19,8 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
     bool collision = true; // Algorithm "assumes" for collision initially
     Coords coords1;
     Coords coords2;
+    std::array<int, 2> minMaxInd;
+    std::vector<float> coords2Proj;
 
     GlfwSquare *sq1, *sq2;
     float theta, d1, d2, q1, q2;
@@ -45,8 +47,7 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
             for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
-                // Find min-max projections from first square
-                // Here d2 = d1+width OR d2 = d1+height
+                // Coords1 create the projection plane/line
                 d1 = coords1.at(j).dot(P);
                 d2 = coords1.at(j + 1).dot(P);
                 if (d2 < d1)
@@ -56,15 +57,11 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
                 }
                 /* Second square */
                 // Find min-max projections from second square
-                q1 = coords2.at(0).dot(P);
-                q2 = coords2.at(0).dot(P);
-                for (int k = 1; k < 4; k++)
-                {
-                    if (coords2.at(k).dot(P) < q1)
-                        q1 = coords2.at(k).dot(P);
-                    if (coords2.at(k).dot(P) > q2)
-                        q2 = coords2.at(k).dot(P);
-                }
+                coords2Proj = getProjections(coords2, P);
+                minMaxInd = findMinMax(coords2Proj);
+                q1 = coords2Proj[minMaxInd[0]];
+                q2 = coords2Proj[minMaxInd[1]];
+
                 // Check if there's overlap on the projected 1D line
                 if (q1 >= d1 && q1 <= d2 || q2 >= d1 && q2 <= d2 ||
                     d1 >= q1 && d1 <= q2 || d2 >= q1 && d2 <= q2)
@@ -143,14 +140,15 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
     Coords coords1;
     Coords coords2;
     std::array<int, 2> minMaxInd;
+    std::vector<float> coords2Proj;
 
     GlfwSquare *sq1, *sq2;
     float theta, d1, d2, q1, q2;
     Vector2d P;
 
-    for (int i = 0; i < colliders.size(); i++) //loop over shapes
+    for (int i = 0; i < colliders.size(); ++i) //loop over shapes
     {
-        for (int n = 0; n < 2; n++) // loop over both shapes to get all necessary projections
+        for (int n = 0; n < 2; ++n) // loop over both shapes to get all necessary projections
         {
             if (sqObj == &colliders.at(i))
                 break;
@@ -166,11 +164,10 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
             }
             coords1 = sq1->getCoordinates(true);
             coords2 = sq2->getCoordinates(true);
-            for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the rect
+            for (int j = 0; j < coords1.size() / 2; ++j) // Loop over half of the points that make the rect
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
-                // Find min-max projections from first square
-                // Here d2 = d1+width OR d2 = d1+height
+                // Find min-max points of a rectangle's side from the first square
                 d1 = coords1.at(j).dot(P);
                 d2 = coords1.at(j + 1).dot(P);
                 if (d2 < d1)
@@ -180,23 +177,11 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
                 }
                 /* Second square */
                 // Find min-max projections from second square
-                q1 = coords2.at(0).dot(P);
-                minMaxInd[0] = 0;
-                q2 = coords2.at(0).dot(P);
-                minMaxInd[1] = 0;
-                for (int k = 1; k < 4; k++)
-                {
-                    if (coords2.at(k).dot(P) < q1)
-                    {
-                        q1 = coords2.at(k).dot(P);
-                        minMaxInd[0] = k;
-                    }
-                    if (coords2.at(k).dot(P) > q2)
-                    {
-                        q2 = coords2.at(k).dot(P);
-                        minMaxInd[1] = k;
-                    }
-                }
+                coords2Proj = getProjections(coords2, P);
+                minMaxInd = findMinMax(coords2Proj);
+                q1 = coords2Proj[minMaxInd[0]];
+                q2 = coords2Proj[minMaxInd[1]];
+
                 // Check if there's a point near a line and draw a debug circle
                 if ((q1 - d2) <= 1 && (q1 - d2) >= 0)
                 {
@@ -222,4 +207,41 @@ Vector2d GlfwCollision::getProjectionVector(Vector2d point1, Vector2d point2)
     P.y = std::sin(theta);
 
     return P;
+}
+
+std::vector<float> GlfwCollision::getProjections(Coords coords, Vector2d projVec)
+{
+    std::vector<float> out;
+
+    for (int i = 0; i < coords.size(); ++i)
+    {
+        out.emplace_back(coords.at(i).dot(projVec));
+    }
+
+    return out;
+}
+
+std::array<int, 2> GlfwCollision::findMinMax(std::vector<float> arr)
+{
+    std::array<int, 2> minMax;
+    float min, max;
+    min = arr[0];
+    max = arr[0];
+    minMax[0] = 0;
+    minMax[1] = 0;
+    for (int k = 1; k < arr.size(); ++k)
+    {
+        if (arr[k] < min)
+        {
+            min = arr[k];
+            minMax[0] = k;
+        }
+        if (arr[k] > max)
+        {
+            max = arr[k];
+            minMax[1] = k;
+        }
+    }
+
+    return minMax;
 }
