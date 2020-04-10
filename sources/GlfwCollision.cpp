@@ -12,34 +12,34 @@ GlfwCollision::GlfwCollision(GlfwGameControl *gameControl)
 }
 
 //Uses Separating Axis Theorem (SAT)
-std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders)
+std::unordered_map<std::string, GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders)
 {
-    std::vector<GlfwSquare> collidingSquares;
+    std::unordered_map<std::string, GlfwSquare> collidingSquares;
 
     bool collision = true; // Algorithm "assumes" for collision initially
+
     Coords coords1;
+    std::vector<float> coords1Proj;
     Coords coords2;
-    std::array<int, 2> minMaxInd;
     std::vector<float> coords2Proj;
 
+    std::array<int, 2> minMaxInd;
     GlfwSquare *sq1, *sq2;
     float theta, d1, d2, q1, q2;
     Vector2d P;
 
-    for (int i = 0; i < colliders.size(); i++) //loop over shapes
+    //for (int i = 0; i < colliders.size(); i++) //loop over shapes
+    for (auto const &[key, val] : colliders)
     {
+        sq1 = sqObj;
+        sq2 = &colliders[key];
         for (int n = 0; n < 2; n++) // loop over both shapes to get all necessary projections
         {
-            if (sqObj == &colliders.at(i))
+            if (sqObj == &colliders[key])
                 break;
-            if (n == 0)
+            if (n > 0)
             {
-                sq1 = sqObj;
-                sq2 = &colliders.at(i);
-            }
-            else
-            {
-                sq1 = &colliders.at(i);
+                sq1 = &colliders[key];
                 sq2 = sqObj;
             }
             coords1 = sq1->getCoordinates(true);
@@ -47,15 +47,11 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
             for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
-                // Coords1 create the projection plane/line
-                d1 = coords1.at(j).dot(P);
-                d2 = coords1.at(j + 1).dot(P);
-                if (d2 < d1)
-                {
-                    d1 = d2;
-                    d2 = coords1.at(j).dot(P);
-                }
-                /* Second square */
+                // Find min-max projections from first square
+                coords1Proj = getProjections(coords1, P);
+                minMaxInd = findMinMax(coords1Proj);
+                d1 = coords1Proj[minMaxInd[0]];
+                d2 = coords1Proj[minMaxInd[1]];
                 // Find min-max projections from second square
                 coords2Proj = getProjections(coords2, P);
                 minMaxInd = findMinMax(coords2Proj);
@@ -81,12 +77,10 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
             }
             if (n == 1)
             {
-                collidingSquares.emplace_back(*sq1);
+                collidingSquares.emplace(key, val);
             }
-            if (n == -1)
-            {
+            else if (n == -1)
                 break;
-            }
         }
     }
 
@@ -97,20 +91,15 @@ std::vector<GlfwSquare> GlfwCollision::withConvex(GlfwSquare *sqObj, std::vector
  * Takes in a target convex object and objects that the convex object collides with and prevents
  * the target penetrating the collider objects.
  */
-std::vector<GlfwSquare> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders)
+std::unordered_map<std::string, GlfwSquare> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders)
 {
-    std::vector<GlfwSquare> collidersOut;
+    std::unordered_map<std::string, GlfwSquare> collidersOut;
 
     float angleSq = sqObj->velocity.angle();
     float speedSq = sqObj->velocity.length();
 
-    std::vector<float> angleCollider;
-    std::vector<float> speedCollider;
-    for (int i = 0; i < colliders.size(); ++i)
-    {
-        angleCollider.emplace_back(colliders[i].velocity.angle());
-        speedCollider.emplace_back(colliders[i].velocity.length());
-    }
+    float angleCollider;
+    float speedCollider;
 
     int ind = 0;
     while (colliders.size() > 0)
@@ -122,11 +111,14 @@ std::vector<GlfwSquare> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std
         sqObj->velocity.x = speedSq * std::cos(angleSq);
         sqObj->velocity.y = speedSq * std::sin(angleSq);
 
-        for (int i = 0; i < colliders.size(); ++i)
+        for (auto const &[key, val] : colliders)
         {
-            speedCollider[i] = (speedCollider[i] > 1 ? speedCollider[i] - 1 : 0);
-            colliders[i].velocity.x = speedCollider[i] * std::cos(angleCollider[i]);
-            colliders[i].velocity.y = speedCollider[i] * std::sin(angleCollider[i]);
+            angleCollider = colliders[key].velocity.angle();
+            speedCollider = colliders[key].velocity.length();
+            speedCollider = (speedCollider > 1 ? speedCollider - 1 : 0);
+
+            colliders[key].velocity.x = speedCollider * std::cos(angleCollider);
+            colliders[key].velocity.y = speedCollider * std::sin(angleCollider);
         }
 
         colliders = withConvex(sqObj, colliders);
@@ -135,31 +127,30 @@ std::vector<GlfwSquare> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std
     return collidersOut;
 }
 
-void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders)
+void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders)
 {
     Coords coords1;
+    std::vector<float> coords1Proj;
     Coords coords2;
-    std::array<int, 2> minMaxInd;
     std::vector<float> coords2Proj;
 
+    std::array<int, 2> minMaxInd;
     GlfwSquare *sq1, *sq2;
     float theta, d1, d2, q1, q2;
     Vector2d P;
 
-    for (int i = 0; i < colliders.size(); ++i) //loop over shapes
+    //for (int i = 0; i < colliders.size(); ++i) //loop over shapes
+    for (auto const &[key, val] : colliders)
     {
+        sq1 = sqObj;
+        sq2 = &colliders[key];
         for (int n = 0; n < 2; ++n) // loop over both shapes to get all necessary projections
         {
-            if (sqObj == &colliders.at(i))
+            if (sqObj == &colliders[key])
                 break;
-            if (n == 0)
+            if (n > 0)
             {
-                sq1 = sqObj;
-                sq2 = &colliders.at(i);
-            }
-            else
-            {
-                sq1 = &colliders.at(i);
+                sq1 = &colliders[key];
                 sq2 = sqObj;
             }
             coords1 = sq1->getCoordinates(true);
@@ -167,15 +158,12 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
             for (int j = 0; j < coords1.size() / 2; ++j) // Loop over half of the points that make the rect
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
-                // Find min-max points of a rectangle's side from the first square
-                d1 = coords1.at(j).dot(P);
-                d2 = coords1.at(j + 1).dot(P);
-                if (d2 < d1)
-                {
-                    d1 = d2;
-                    d2 = coords1.at(j).dot(P);
-                }
-                /* Second square */
+
+                // Find min-max projections from first square
+                coords1Proj = getProjections(coords1, P);
+                minMaxInd = findMinMax(coords1Proj);
+                d1 = coords1Proj[minMaxInd[0]];
+                d2 = coords1Proj[minMaxInd[1]];
                 // Find min-max projections from second square
                 coords2Proj = getProjections(coords2, P);
                 minMaxInd = findMinMax(coords2Proj);
@@ -183,6 +171,7 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare>
                 q2 = coords2Proj[minMaxInd[1]];
 
                 // Check if there's a point near a line and draw a debug circle
+                // TODO: Fix
                 if ((q1 - d2) <= 1 && (q1 - d2) >= 0)
                 {
                     gameControl->createObject(DebugCircle(coords2[minMaxInd[0]].x, coords2[minMaxInd[0]].y, 10));

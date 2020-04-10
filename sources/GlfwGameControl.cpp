@@ -12,73 +12,81 @@ GlfwGameControl::GlfwGameControl(float gravity)
 void GlfwGameControl::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     GlfwGameControl *gameControl = (GlfwGameControl *)glfwGetWindowUserPointer(window);
-    std::vector<GlfwSquare> *squares = gameControl->getSquares();
+    std::unordered_map<std::string, GlfwSquare> *squares = gameControl->getSquares();
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
     {
-        squares->at(0).move(-8);
+        // Do stuff
     }
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
     {
-        squares->at(0).move(8);
+        // Do stuff
     }
     if (key == GLFW_KEY_UP && action == GLFW_PRESS)
     {
-        squares->at(0).move(0, 8);
+        // Do stuff
     }
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
     {
-        squares->at(0).move(0, -8);
+        // Do stuff
     }
 }
 
 GlfwSquare *GlfwGameControl::createObject(GlfwSquare obj)
 {
-    glfwSquareAll.emplace_back(obj);
-    glfwSquareAll.back().setGameControl(this);
-    glfwSquareAll.back().pointCollisionControl(&glfwCollision);
+    if (obj.name == "")
+        obj.name = "rect_" + glfwSquareAll.size();
 
-    return &glfwSquareAll.back();
+    glfwSquareAll.emplace(obj.name, obj);
+    glfwSquareAll[obj.name].setGameControl(this);
+    glfwSquareAll[obj.name].pointCollisionControl(&glfwCollision);
+
+    return &glfwSquareAll.at(obj.name);
 }
 
 DebugCircle *GlfwGameControl::createObject(DebugCircle obj)
 {
-    debugCircleAll.emplace_back(obj);
+    if (obj.name == "")
+        obj.name = "debug_circle_" + debugCircleAll.size();
+    debugCircleAll.emplace(obj.name, obj);
+    debugCircleAll.emplace("", obj);
 
-    return &debugCircleAll.back();
+    return &debugCircleAll.at("");
 }
 
 DebugLine *GlfwGameControl::createObject(DebugLine obj)
 {
-    debugLineAll.emplace_back(obj);
+    if (obj.name == "")
+        obj.name = "debug_line_" + debugLineAll.size();
+    debugLineAll.emplace(obj.name, obj);
 
-    return &debugLineAll.back();
+    return &debugLineAll.at(obj.name);
 }
 
 void GlfwGameControl::drawAll()
 {
-    for (int i = 0; i < glfwSquareAll.size(); i++)
+    for (auto const &[key, val] : glfwSquareAll)
     {
-        glfwSquareAll[i].draw();
+        glfwSquareAll.at(key).draw();
     }
-    for (int i = 0; i < debugCircleAll.size(); i++)
+    for (auto const &[key, val] : debugCircleAll)
     {
-        debugCircleAll[i].draw();
+        debugCircleAll.at(key).draw();
     }
-    for (int i = 0; i < debugLineAll.size(); i++)
+    for (auto const &[key, val] : debugLineAll)
     {
-        debugLineAll[i].draw();
+        debugLineAll.at(key).draw();
     }
 }
 
 void GlfwGameControl::updateAll(double msPerFrame)
 {
-    for (int i = 0; i < glfwSquareAll.size(); i++)
+    for (auto const &[key, val] : glfwSquareAll)
     {
-        glfwSquareAll[i].update(msPerFrame);
+        glfwSquareAll.at(key).update();
     }
 }
 
@@ -104,7 +112,7 @@ double GlfwGameControl::getPerformance(bool printPerformance)
     return SPF;
 }
 
-std::vector<GlfwSquare> *GlfwGameControl::getSquares()
+std::unordered_map<std::string, GlfwSquare> *GlfwGameControl::getSquares()
 {
     return &glfwSquareAll;
 }

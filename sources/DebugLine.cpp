@@ -2,8 +2,9 @@
 #include <cmath>
 #include <iostream>
 
-DebugLine::DebugLine(float x1, float y1, float x2, float y2)
+DebugLine::DebugLine(float x1, float y1, float x2, float y2, std::string name)
 {
+    this->name = name;
     lineVertices[0] = x1;
     lineVertices[1] = y1;
     lineVertices[2] = x2;

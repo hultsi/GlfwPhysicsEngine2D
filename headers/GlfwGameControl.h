@@ -1,14 +1,15 @@
 #pragma once
 #include "./GlfwHeaders.h"
 #include <vector>
+#include <unordered_map>
 
 class GlfwGameControl
 {
 public:
     //TODO: Change to maps
-    std::vector<GlfwSquare> glfwSquareAll;
-    std::vector<DebugCircle> debugCircleAll;
-    std::vector<DebugLine> debugLineAll;
+    std::unordered_map<std::string, GlfwSquare> glfwSquareAll;
+    std::unordered_map<std::string, DebugCircle> debugCircleAll;
+    std::unordered_map<std::string, DebugLine> debugLineAll;
 
     GlfwGameControl(float gravity = 0);
     static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
@@ -17,7 +18,7 @@ public:
     DebugCircle *createObject(DebugCircle obj);
     DebugLine *createObject(DebugLine obj);
 
-    std::vector<GlfwSquare> *getSquares();
+    std::unordered_map<std::string, GlfwSquare> *getSquares();
 
     void resetPerformance();
     double getPerformance(bool printPerformance = true);

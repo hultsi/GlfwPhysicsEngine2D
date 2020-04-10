@@ -2,8 +2,10 @@
 #include <cmath>
 #include <iostream>
 
-DebugCircle::DebugCircle(float x, float y, float radius)
+DebugCircle::DebugCircle(float x, float y, float radius, std::string name)
 {
+    this->name = name;
+
     float theta = 2 * M_PI / 16;
     for (int i = 0; i < 32; i += 4)
     {

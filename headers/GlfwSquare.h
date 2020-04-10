@@ -10,6 +10,7 @@ class GlfwGameControl;
 class GlfwSquare
 {
 public:
+    std::string name;
     std::array<Vector2d, 4> corners;
     float width, height;
     float radius;
@@ -30,7 +31,7 @@ public:
 
     GlfwSquare(){};
     GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,
-               double rectRotation = 0, bool isStatic = true, float mass = 999);
+               double rectRotation = 0, bool isStatic = true, std::string rectName = "", float mass = 999);
 
     Coords getCoordinates(bool addVelocity = false);
 

@@ -8,12 +8,12 @@ class GlfwCollision
 public:
     GlfwCollision();
     GlfwCollision(GlfwGameControl *gameControl);
-    std::vector<GlfwSquare> withConvex(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
+    std::unordered_map<std::string, GlfwSquare> withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
 
     /* Also saves colliding points to sqObj */
-    std::vector<GlfwSquare> preventPenetration(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
+    std::unordered_map<std::string, GlfwSquare> preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
 
-    void pointsOfCollision(GlfwSquare *sqObj, std::vector<GlfwSquare> &colliders);
+    void pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
 
 private:
     // Returns a vector that starts from 0 and has the same angle

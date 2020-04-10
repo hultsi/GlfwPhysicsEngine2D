@@ -5,8 +5,10 @@
 #include <array>
 
 GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float rectWidth, float rectHeight,
-                       double rectRotation, bool isStatic, float mass)
+                       double rectRotation, bool isStatic, std::string rectName, float mass)
 {
+    name = rectName;
+
     corners[0].x = bottomLeftX;              // these are cm --> convert to meters when used
     corners[0].y = bottomLeftY;              // these are cm --> convert to meters when used
     corners[2].x = bottomLeftX + rectWidth;  // these are cm --> convert to meters when used
@@ -208,7 +210,7 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 void GlfwSquare::handleCollision()
 {
     collision = false;
-    std::vector<GlfwSquare> colliders = glfwCollision->withConvex(this, *gameControl->getSquares());
+    std::unordered_map<std::string, GlfwSquare> colliders = glfwCollision->withConvex(this, *gameControl->getSquares());
 
     if (colliders.size() != 0)
     {
