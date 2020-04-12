@@ -1,6 +1,7 @@
 #pragma once
 #include "./../headers/GlfwHeaders.h"
 #include <math.h>
+#include <iostream>
 
 class Vector2d
 {
@@ -27,11 +28,13 @@ public:
 
     void rotate(double radians);
     void normalize();
-    float length() const;
-    float angle() const;
-    float angleDeg() const;
+    float getLength() const;
+    float getAngle() const;
+    float getAngleDeg() const;
 
+    //TODO: Make these private.
     float x, y;
 
 private:
+    float angle;
 };

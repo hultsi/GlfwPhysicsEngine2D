@@ -26,5 +26,8 @@ private:
     // Find min-max projection. Returns index [min, max].
     std::array<int, 2> findMinMax(std::vector<float> arr);
 
+    // Sort projections. Returns indices in sorted manner.
+    std::vector<int> sortProjections(std::vector<float> arr);
+
     GlfwGameControl *gameControl = NULL;
 };

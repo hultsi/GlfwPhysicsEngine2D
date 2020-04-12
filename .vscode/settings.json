@@ -48,6 +48,7 @@
         "functional": "cpp",
         "sstream": "cpp",
         "list": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "string": "cpp"
     }
 }

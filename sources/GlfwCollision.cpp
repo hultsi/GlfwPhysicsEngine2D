@@ -95,8 +95,8 @@ std::unordered_map<std::string, GlfwSquare> GlfwCollision::preventPenetration(Gl
 {
     std::unordered_map<std::string, GlfwSquare> collidersOut;
 
-    float angleSq = sqObj->velocity.angle();
-    float speedSq = sqObj->velocity.length();
+    float angleSq = sqObj->velocity.getAngle();
+    float speedSq = sqObj->velocity.getLength();
 
     float angleCollider;
     float speedCollider;
@@ -113,8 +113,8 @@ std::unordered_map<std::string, GlfwSquare> GlfwCollision::preventPenetration(Gl
 
         for (auto const &[key, val] : colliders)
         {
-            angleCollider = colliders[key].velocity.angle();
-            speedCollider = colliders[key].velocity.length();
+            angleCollider = colliders[key].velocity.getAngle();
+            speedCollider = colliders[key].velocity.getLength();
             speedCollider = (speedCollider > 1 ? speedCollider - 1 : 0);
 
             colliders[key].velocity.x = speedCollider * std::cos(angleCollider);
@@ -130,16 +130,22 @@ std::unordered_map<std::string, GlfwSquare> GlfwCollision::preventPenetration(Gl
 void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders)
 {
     Coords coords1;
-    std::vector<float> coords1Proj;
+    std::vector<float> coords1Proj_1;
+    std::vector<float> coords1Proj_2;
     Coords coords2;
-    std::vector<float> coords2Proj;
+    std::vector<float> coords2Proj_1;
+    std::vector<float> coords2Proj_2;
 
-    std::array<int, 2> minMaxInd;
+    std::vector<int> sortedInds;
     GlfwSquare *sq1, *sq2;
+    // Used for projections
     float theta, d1, d2, q1, q2;
+    // Used for checking if collision point is touching a side
+    float w1, w2, w3;
+    int ind1, ind2;
+
     Vector2d P;
 
-    //for (int i = 0; i < colliders.size(); ++i) //loop over shapes
     for (auto const &[key, val] : colliders)
     {
         sq1 = sqObj;
@@ -160,25 +166,33 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
 
                 // Find min-max projections from first square
-                coords1Proj = getProjections(coords1, P);
-                minMaxInd = findMinMax(coords1Proj);
-                d1 = coords1Proj[minMaxInd[0]];
-                d2 = coords1Proj[minMaxInd[1]];
+                coords1Proj_1 = getProjections(coords1, P);
+                sortedInds = sortProjections(coords1Proj_1);
+                d1 = coords1Proj_1[sortedInds[0]];
+                d2 = coords1Proj_1[sortedInds[sortedInds.size() - 1]];
                 // Find min-max projections from second square
-                coords2Proj = getProjections(coords2, P);
-                minMaxInd = findMinMax(coords2Proj);
-                q1 = coords2Proj[minMaxInd[0]];
-                q2 = coords2Proj[minMaxInd[1]];
+                coords2Proj_1 = getProjections(coords2, P);
+
+                // Find min-max projections from in +90deg projection as well
+                P.rotate(M_PI / 2);
+                coords1Proj_2 = getProjections(coords1, P);
+                coords2Proj_2 = getProjections(coords2, P);
 
                 // Check if there's a point near a line and draw a debug circle
-                // TODO: Fix
-                if ((q1 - d2) <= 1 && (q1 - d2) >= 0)
+                for (int i = 0; i < coords2Proj_1.size(); ++i)
                 {
-                    gameControl->createObject(DebugCircle(coords2[minMaxInd[0]].x, coords2[minMaxInd[0]].y, 10));
-                }
-                else if ((d1 - q2) <= 1 && (d1 - q2) >= 0)
-                {
-                    gameControl->createObject(DebugCircle(coords2[minMaxInd[1]].x, coords2[minMaxInd[1]].y, 10));
+                    if (((coords2Proj_1[i] - d2) <= 1 && (coords2Proj_1[i] - d2) >= 0) ||
+                        ((d1 - coords2Proj_1[i]) <= 1 && (d1 - coords2Proj_1[i]) >= 0))
+                    {
+                        ind1 = sortedInds[sortedInds.size() - 1];
+                        ind2 = sortedInds[sortedInds.size() - 2];
+                        w1 = std::abs(coords1Proj_2[ind1] - coords2Proj_2[i]);
+                        w2 = std::abs(coords1Proj_2[ind2] - coords2Proj_2[i]);
+                        w3 = std::abs(coords1Proj_2[ind1] - coords1Proj_2[ind2]);
+                        //TODO: save colliding points to the objects
+                        if (w1 < w3 && w2 < w3)
+                            gameControl->createObject(DebugCircle(coords2[i].x, coords2[i].y, 10));
+                    }
                 }
             }
         }
@@ -233,4 +247,32 @@ std::array<int, 2> GlfwCollision::findMinMax(std::vector<float> arr)
     }
 
     return minMax;
+}
+
+std::vector<int> GlfwCollision::sortProjections(std::vector<float> arr)
+{
+    std::vector<int> sortedInds;
+    for (int i = 0; i < arr.size(); ++i)
+        sortedInds.emplace_back(i);
+
+    int temp = 0;
+    int n = arr.size();
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (arr[j] > arr[j + 1])
+            {
+                temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+
+                temp = sortedInds[j];
+                sortedInds[j] = sortedInds[j + 1];
+                sortedInds[j + 1] = temp;
+            }
+        }
+    }
+
+    return sortedInds;
 }

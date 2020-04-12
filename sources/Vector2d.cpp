@@ -8,13 +8,16 @@ Vector2d::Vector2d(float x, float y)
 {
     this->x = x;
     this->y = y;
+    this->angle = std::atan2(this->y, this->x);
+    (this->angle > 0 ? this->angle : (2 * M_PI + this->angle));
 }
 
 void Vector2d::rotate(double radians)
 {
     float xPrev = x;
-    x = x * std::cos(radians) - y * std::sin(radians);
-    y = xPrev * std::sin(radians) + y * std::cos(radians);
+    this->angle += radians;
+    x = x * std::cos(this->angle) - y * std::sin(this->angle);
+    y = xPrev * std::sin(this->angle) + y * std::cos(this->angle);
 }
 
 void Vector2d::normalize()
@@ -78,25 +81,21 @@ float Vector2d::dot(const Vector2d &param) const
     return val;
 }
 
-float Vector2d::length() const
+float Vector2d::getLength() const
 {
     float val;
     val = std::sqrt(this->x * this->x + this->y * this->y);
     return val;
 }
 
-float Vector2d::angle() const
+float Vector2d::getAngle() const
 {
-    float val;
-    val = std::atan2(this->y, this->x);
-    return (val > 0 ? val : (2 * M_PI + val));
+    return this->angle;
 }
 
-float Vector2d::angleDeg() const
+float Vector2d::getAngleDeg() const
 {
-    float val;
-    val = std::atan2(this->y, this->x);
-    return (val > 0 ? val : (2 * M_PI + val)) * 360 / (2 * M_PI);
+    return this->angle * 360 / (2 * M_PI);
 }
 
 Vector2d Vector2d::cross(const Vector2d &param) const
