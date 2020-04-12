@@ -10,14 +10,15 @@ int main(void)
     GlfwGameControl gameControl;
 
     // Define shapes
-    GlfwSquare *sq = gameControl.createObject(GlfwSquare(430, 440, 200, 60, 20, false, "sq1", 30));
-    sq->velocity.x = 4;
-    sq->velocity.y = -1;
+    //GlfwSquare *sq = gameControl.createObject(GlfwSquare(430, 440, 200, 60, 20, false, "sq1", 30));
+    //sq->velocity.x = 5;
+    //sq->velocity.y = -2;
     GlfwSquare *sq2 = gameControl.createObject(GlfwSquare(720, 280, 280, 60, M_PI / 2, false, "sq2", 70));
-
-    GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(330, 440, 100, 60, 20, false, "sq3", 30));
-    sq3->velocity.x = 4;
-    sq3->velocity.y = -1;
+    //GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(330, 440, 100, 60, 20, false, "sq3", 30));
+    //sq3->velocity.x = 5;
+    //sq3->velocity.y = -2;
+    GlfwSquare *sq4 = gameControl.createObject(GlfwSquare(980, 400, 50, 60, M_PI / 2, false, "sq4", 30));
+    sq4->velocity.x = -3;
 
     if (initWindow() == -1)
         return -1;

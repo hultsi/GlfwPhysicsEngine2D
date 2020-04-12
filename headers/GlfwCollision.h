@@ -8,12 +8,12 @@ class GlfwCollision
 public:
     GlfwCollision();
     GlfwCollision(GlfwGameControl *gameControl);
-    std::unordered_map<std::string, GlfwSquare> withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
+    std::unordered_map<std::string, GlfwSquare *> withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders);
 
     /* Also saves colliding points to sqObj */
-    std::unordered_map<std::string, GlfwSquare> preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
+    std::unordered_map<std::string, GlfwSquare *> preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders);
 
-    void pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare> &colliders);
+    void pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders);
 
 private:
     // Returns a vector that starts from 0 and has the same angle
@@ -28,6 +28,16 @@ private:
 
     // Sort projections. Returns indices in sorted manner.
     std::vector<int> sortProjections(std::vector<float> arr);
+
+    // Decrease speed
+    Vector2d decreaseVelocity(Vector2d &vel);
+
+    // Sign of a number
+    template <typename T>
+    int getSign(T val)
+    {
+        return (T(0) < val) - (val < T(0));
+    }
 
     GlfwGameControl *gameControl = NULL;
 };

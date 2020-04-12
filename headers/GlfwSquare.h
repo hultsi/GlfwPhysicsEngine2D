@@ -26,6 +26,7 @@ public:
     double inertia = 0, momentum = 0, KE = 0, PE = 0;
     int applyForce = 0;
     bool collision = false;
+
     //std::unordered_map<GlfwSquare *, int> collisionWith; // -1 Not checked, 0 false, 1 true
     std::unordered_map<GlfwSquare *, std::vector<Vector2d>> collidingPoints;
 

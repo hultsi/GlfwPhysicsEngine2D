@@ -112,6 +112,8 @@ void GlfwSquare::rotate(float rad)
 //Happens BEFORE draw() and during every loop
 void GlfwSquare::update(double dt)
 {
+    collidingPoints.clear();
+
     if (applyForce)
     {
         updateForces(dt);
@@ -121,6 +123,7 @@ void GlfwSquare::update(double dt)
     handleCollision();
     updatePosition(dt);
 }
+
 //Happens AFTER update() and during every loop
 void GlfwSquare::draw()
 {
@@ -210,8 +213,7 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 void GlfwSquare::handleCollision()
 {
     collision = false;
-    std::unordered_map<std::string, GlfwSquare> colliders = glfwCollision->withConvex(this, *gameControl->getSquares());
-
+    std::unordered_map<std::string, GlfwSquare *> colliders = glfwCollision->withConvex(this, gameControl->rectAll);
     if (colliders.size() != 0)
     {
         colliders = glfwCollision->preventPenetration(this, colliders);
