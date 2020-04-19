@@ -47,7 +47,7 @@ public:
     void setGameControl(GlfwGameControl *gameControl);
 
 private:
-    void calculateImpulse(std::vector<GlfwSquare *> squares, std::vector<Vector2d> points);
+    void calculateImpulse(std::vector<GlfwSquare *> squares);
     void updateForces(double dt);
     void updateAcceleration(double dt);
     void updateVelocity(double dt);

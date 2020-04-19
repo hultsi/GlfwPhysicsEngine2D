@@ -118,12 +118,10 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
 {
     Coords coords1;
     std::vector<float> coords1Proj_1;
-    std::vector<float> coords1Proj_2;
     Coords coords2;
     std::vector<float> coords2Proj_1;
-    std::vector<float> coords2Proj_2;
 
-    std::vector<int> sortedInds;
+    std::vector<Vector2d> coords;
     std::vector<Vector2d> collidingPoints;
     // Temp pointers for colliders
     GlfwSquare *sq1, *sq2;
@@ -154,40 +152,34 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
 
-                // Find min-max projections from first square
+                // Find min-max projections from first & 2nd square
                 coords1Proj_1 = getProjections(coords1, P);
-                sortedInds = sortProjections(coords1Proj_1);
-                d1 = coords1Proj_1[sortedInds[0]];
-                d2 = coords1Proj_1[sortedInds[sortedInds.size() - 1]];
-                // Find min-max projections from second square
                 coords2Proj_1 = getProjections(coords2, P);
-
-                // Find min-max projections from in +90deg projection as well
-                P.rotate(M_PI / 2);
-                coords1Proj_2 = getProjections(coords1, P);
-                coords2Proj_2 = getProjections(coords2, P);
-
-                // Check if there's a point near a line and draw a debug circle
-                for (int i = 0; i < coords2Proj_1.size(); ++i)
+                // Check if there's a point near another rect's point and save them
+                std::vector<Vector2d> coords = getNearbyPoints(coords1, coords2, coords1Proj_1, coords2Proj_1);
+                if (coords.size() > 0)
                 {
-                    if (((coords2Proj_1[i] - d2) <= 1 && (coords2Proj_1[i] - d2) >= 0) ||
-                        ((d1 - coords2Proj_1[i]) <= 1 && (d1 - coords2Proj_1[i]) >= 0))
+                    //ALSO SAVE NORMALS
+                    // Rotate projection 90deg, ignore min and max projections and the others are the colliding ones
+                    P.rotate(M_PI / 2);
+                    std::vector<int> pp = sortProjections(getProjections(coords, P));
+                    float m = (coords[pp[0]].y - coords[pp[pp.size() - 1]].y) / (coords[pp[0]].x - coords[pp[pp.size() - 1]].x);
+                    m = -1 / m;
+                    float b = coords[pp[0]].y - m * coords[pp[0]].x;
+                    for (int i = 1; i < pp.size() - 1; ++i)
                     {
-                        ind1 = sortedInds[sortedInds.size() - 1];
-                        ind2 = sortedInds[sortedInds.size() - 2];
-                        w1 = std::abs(coords1Proj_2[ind1] - coords2Proj_2[i]);
-                        w2 = std::abs(coords1Proj_2[ind2] - coords2Proj_2[i]);
-                        w3 = std::abs(coords1Proj_2[ind1] - coords1Proj_2[ind2]);
-                        //TODO: save colliding points to the objects
-                        if (w1 < w3 && w2 < w3)
-                        {
-                            gameControl->createObject(DebugCircle(coords2[i].x, coords2[i].y, 10));
-                            collidingPoints.emplace_back(Vector2d(coords2[i].x, coords2[i].y));
-                            //sqObj->collidingPoints.emplace(sq2,)
-                        }
+                        gameControl->createObject(DebugCircle(coords[pp[i]].x, coords[pp[i]].y, 10));
+                        gameControl->createObject(DebugLine(0, 100, 0 + 50, 100 + (0 + 50) * m));
+                        collidingPoints.emplace_back(Vector2d(coords[pp[i]].x, coords[pp[i]].y));
                     }
                 }
             }
+        }
+        if (collidingPoints.size() > 0)
+        {
+            std::cout << "Colliding point size: " << collidingPoints.size() << "\n";
+            sq1->collidingPoints.emplace(sq2, collidingPoints);
+            sq2->collidingPoints.emplace(sq1, collidingPoints);
         }
     }
 }
@@ -248,7 +240,8 @@ std::vector<int> GlfwCollision::sortProjections(std::vector<float> arr)
     for (int i = 0; i < arr.size(); ++i)
         sortedInds.emplace_back(i);
 
-    int temp = 0;
+    float temp1 = 0;
+    int temp2 = 0;
     int n = arr.size();
     for (int i = 0; i < n - 1; i++)
     {
@@ -256,17 +249,16 @@ std::vector<int> GlfwCollision::sortProjections(std::vector<float> arr)
         {
             if (arr[j] > arr[j + 1])
             {
-                temp = arr[j];
+                temp1 = arr[j];
                 arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+                arr[j + 1] = temp1;
 
-                temp = sortedInds[j];
+                temp2 = sortedInds[j];
                 sortedInds[j] = sortedInds[j + 1];
-                sortedInds[j + 1] = temp;
+                sortedInds[j + 1] = temp2;
             }
         }
     }
-
     return sortedInds;
 }
 
@@ -284,4 +276,59 @@ Vector2d GlfwCollision::decreaseVelocity(Vector2d &vel)
     out.y = sign * speed * std::sin(angle);
 
     return out;
+}
+
+std::vector<Vector2d> GlfwCollision::getNearbyPoints(Coords coords1, Coords coords2, std::vector<float> proj1, std::vector<float> proj2)
+{
+    std::vector<Vector2d> coords;
+    int ind1, ind2;
+    std::vector<int> sortedInds = sortProjections(proj1);
+    float d1 = proj1[sortedInds[0]];
+    float d2 = proj1[sortedInds[sortedInds.size() - 1]];
+    bool sq1Border = false;
+    for (int i = 0; i < proj2.size(); ++i)
+    {
+        if ((proj2[i] - d2) <= 1 && (proj2[i] - d2) >= 0)
+        {
+            if (coords.size() < 1)
+            {
+                // Object on the + side of the projection
+                ind1 = sortedInds[sortedInds.size() - 1];
+                ind2 = sortedInds[sortedInds.size() - 2];
+                coords.emplace_back(coords1[ind1]);
+                if (std::abs(proj1[ind1] - proj1[ind2]) < 1)
+                {
+                    coords.emplace_back(coords1[ind2]);
+                    bool sq1Border = true;
+                }
+            }
+            coords.emplace_back(coords2[i]);
+        }
+        else if ((d1 - proj2[i]) <= 1 && (d1 - proj2[i]) >= 0)
+        {
+            if (coords.size() < 1)
+            {
+                // Object on the - side of the projection
+                ind1 = sortedInds[0];
+                ind2 = sortedInds[1];
+                coords.emplace_back(coords1[ind1]);
+                if (std::abs(proj1[ind1] - proj1[ind2]) < 1)
+                {
+                    coords.emplace_back(coords1[ind2]);
+                    bool sq1Border = true;
+                }
+            }
+            coords.emplace_back(coords2[i]);
+        }
+    }
+
+    if (sq1Border)
+    {
+        // Form normal from sq1
+    }
+    else
+    {
+        // Form normal from sq2
+    }
+    return coords;
 }

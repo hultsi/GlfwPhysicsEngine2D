@@ -149,18 +149,18 @@ void GlfwSquare::draw()
 /**
  * Private
  */
-void GlfwSquare::calculateImpulse(std::vector<GlfwSquare *> squares, std::vector<Vector2d> points)
+void GlfwSquare::calculateImpulse(std::vector<GlfwSquare *> squares)
 {
     float restitution = 0.7;
     float theta = 0;
     float hyp = 0;
-    Vector2d normal = points[points.size() - 1];
+    Vector2d normal(1, 1);
     Vector2d impulseVector;
     Vector2d P;
 
     for (int i = 0; i < squares.size(); ++i)
     {
-        impulse = -(1 + restitution) * ((previousVelocity - squares[i]->previousVelocity).dot(normal)) / (invMass + squares[i]->invMass);
+        impulse = -(1 + restitution) * ((this->previousVelocity - squares[i]->previousVelocity).dot(normal)) / (invMass + squares[i]->invMass);
         // Apply impulse
         impulseVector.x = impulse * normal.x;
         impulseVector.y = impulse * normal.y;
@@ -218,15 +218,7 @@ void GlfwSquare::handleCollision()
     {
         colliders = glfwCollision->preventPenetration(this, colliders);
         glfwCollision->pointsOfCollision(this, colliders);
-        /*
-        collision = true;
-        // Save velocity here. Function preventPenetration() changes it.
-        // pointsOfCollision() Also returns normal at points[points.size()-1]
-        std::vector<Vector2d> points = glfwCollision->pointsOfCollision(this, squares);
-        // std::cout << "points: " << points.size() << "\n";
-        gameControl->createObject(DebugLine(200, 200, 100, 100));
-        calculateImpulse(squares, points);
-        */
+        //calculateImpulse(colliders);
     }
 }
 

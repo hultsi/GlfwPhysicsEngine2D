@@ -14,10 +14,12 @@ Vector2d::Vector2d(float x, float y)
 
 void Vector2d::rotate(double radians)
 {
-    float xPrev = x;
     this->angle += radians;
-    x = x * std::cos(this->angle) - y * std::sin(this->angle);
-    y = xPrev * std::sin(this->angle) + y * std::cos(this->angle);
+    this->x = getLength() * std::cos(this->angle);
+    this->y = getLength() * std::sin(this->angle);
+    //float xPrev = this->x;
+    //this->x = this->x * std::cos(this->angle) - this->y * std::sin(this->angle);
+    //this->y = xPrev * std::sin(this->angle) + this->y * std::cos(this->angle);
 }
 
 void Vector2d::normalize()
