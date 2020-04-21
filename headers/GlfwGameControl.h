@@ -6,7 +6,6 @@
 class GlfwGameControl
 {
 public:
-    //TODO: Change to maps
     std::unordered_map<std::string, GlfwSquare *> rectAll;
     std::unordered_map<std::string, DebugCircle *> debugCircleAll;
     std::unordered_map<std::string, DebugLine *> debugLineAll;
@@ -20,6 +19,7 @@ public:
 
     void resetPerformance();
     double getPerformance(bool printPerformance = true);
+    void updateAllBegin(double msPerFrame = 1);
     void updateAll(double msPerFrame = 1);
     void drawAll();
 

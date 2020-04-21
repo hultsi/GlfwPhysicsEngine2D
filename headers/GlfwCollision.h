@@ -33,7 +33,9 @@ private:
     Vector2d decreaseVelocity(Vector2d &vel);
 
     //
-    std::vector<Vector2d> getNearbyPoints(Coords coords1, Coords coords2, std::vector<float> proj1, std::vector<float> proj2);
+
+    //
+    std::unordered_map<std::string, std::vector<Vector2d>> getNearbyPoints(std::vector<float> proj1, std::vector<float> proj2);
 
     // Sign of a number
     template <typename T>

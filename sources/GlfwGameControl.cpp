@@ -86,6 +86,14 @@ void GlfwGameControl::drawAll()
     }
 }
 
+void GlfwGameControl::updateAllBegin(double msPerFrame)
+{
+    for (auto const &[key, val] : rectAll_private)
+    {
+        rectAll_private.at(key).updateBegin();
+    }
+}
+
 void GlfwGameControl::updateAll(double msPerFrame)
 {
     for (auto const &[key, val] : rectAll_private)

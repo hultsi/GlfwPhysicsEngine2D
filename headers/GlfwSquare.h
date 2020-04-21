@@ -27,8 +27,9 @@ public:
     int applyForce = 0;
     bool collision = false;
 
-    //std::unordered_map<GlfwSquare *, int> collisionWith; // -1 Not checked, 0 false, 1 true
-    std::unordered_map<GlfwSquare *, std::vector<Vector2d>> collidingPoints;
+    //Map of squares with a map with 2 values --> "point" & "normal"
+    std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints;
+    //std::unordered_map<GlfwSquare *, std::vector<Vector2d>> collisionNormals;
 
     GlfwSquare(){};
     GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,
@@ -36,6 +37,7 @@ public:
 
     Coords getCoordinates(bool addVelocity = false);
 
+    void updateBegin();
     void update(double SPF = 1); // Seconds Per Frame
     void draw();
 

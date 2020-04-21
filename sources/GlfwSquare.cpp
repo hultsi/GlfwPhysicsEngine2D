@@ -109,11 +109,16 @@ void GlfwSquare::rotate(float rad)
     rotation += rad;
 }
 
+//Happens BEFORE update() and during every loop
+void GlfwSquare::updateBegin()
+{
+    collision = false;
+    collisionPoints.clear();
+}
+
 //Happens BEFORE draw() and during every loop
 void GlfwSquare::update(double dt)
 {
-    collidingPoints.clear();
-
     if (applyForce)
     {
         updateForces(dt);
@@ -138,8 +143,8 @@ void GlfwSquare::draw()
         corners[0].x, corners[0].y};
 
     glColor3f(1.0f, 1.0f, 1.0f);
-    if (collision)
-        glColor3f(1.0f, 0.0f, 0.0f);
+    //if (collision)
+    //    glColor3f(1.0f, 0.0f, 0.0f);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, lineVertices);
     glDrawArrays(GL_LINES, 0, 8);
@@ -212,13 +217,25 @@ void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 
 void GlfwSquare::handleCollision()
 {
-    collision = false;
     std::unordered_map<std::string, GlfwSquare *> colliders = glfwCollision->withConvex(this, gameControl->rectAll);
     if (colliders.size() != 0)
     {
         colliders = glfwCollision->preventPenetration(this, colliders);
         glfwCollision->pointsOfCollision(this, colliders);
         //calculateImpulse(colliders);
+    }
+
+    if (name == "sq4" && collision)
+    {
+        for (auto const &[key, val] : collisionPoints)
+        {
+            for (int i = 0; i < val.at("point").size(); ++i)
+            {
+                gameControl->createObject(DebugLine(val.at("point")[i].x, val.at("point")[i].y,
+                                                    val.at("point")[i].x + val.at("normal")[i].x * 20,
+                                                    val.at("point")[i].y + val.at("normal")[i].y * 20));
+            }
+        }
     }
 }
 
