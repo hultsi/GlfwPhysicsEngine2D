@@ -114,9 +114,13 @@ void GlfwSquare::updateBegin()
 {
     collision = false;
     collisionPoints.clear();
+    previousVelocity = velocity;
+    impulse = 0;
+    impulseVector.x = 0;
+    impulseVector.y = 0;
 }
 
-//Happens BEFORE draw() and during every loop
+//Happens BEFORE updateEnd() and during every loop
 void GlfwSquare::update(double dt)
 {
     if (applyForce)
@@ -125,8 +129,15 @@ void GlfwSquare::update(double dt)
         updateAcceleration(dt);
         updateVelocity(dt);
     }
+    //TODO: Might have to check collision again after calculating impulse!!!
     handleCollision();
-    updatePosition(dt);
+    applyImpulse();
+    updatePosition();
+}
+
+//Happens BEFORE draw() and during every loop
+void GlfwSquare::updateEnd()
+{
 }
 
 //Happens AFTER update() and during every loop
@@ -143,8 +154,8 @@ void GlfwSquare::draw()
         corners[0].x, corners[0].y};
 
     glColor3f(1.0f, 1.0f, 1.0f);
-    //if (collision)
-    //    glColor3f(1.0f, 0.0f, 0.0f);
+    if (collision)
+        glColor3f(1.0f, 0.0f, 0.0f);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, lineVertices);
     glDrawArrays(GL_LINES, 0, 8);
@@ -154,28 +165,11 @@ void GlfwSquare::draw()
 /**
  * Private
  */
-void GlfwSquare::calculateImpulse(std::vector<GlfwSquare *> squares)
+
+void GlfwSquare::applyImpulse()
 {
-    float restitution = 0.7;
-    float theta = 0;
-    float hyp = 0;
-    Vector2d normal(1, 1);
-    Vector2d impulseVector;
-    Vector2d P;
-
-    for (int i = 0; i < squares.size(); ++i)
-    {
-        impulse = -(1 + restitution) * ((this->previousVelocity - squares[i]->previousVelocity).dot(normal)) / (invMass + squares[i]->invMass);
-        // Apply impulse
-        impulseVector.x = impulse * normal.x;
-        impulseVector.y = impulse * normal.y;
-
-        squares[i]->velocity.x = squares[i]->previousVelocity.x - squares[i]->invMass * impulseVector.x;
-        squares[i]->velocity.y = squares[i]->previousVelocity.y - squares[i]->invMass * impulseVector.y;
-
-        velocity.x = previousVelocity.x + invMass * impulseVector.x;
-        velocity.y = previousVelocity.y + invMass * impulseVector.y;
-    }
+    velocity.x = previousVelocity.x + invMass * impulseVector.x;
+    velocity.y = previousVelocity.y + invMass * impulseVector.y;
 }
 
 void GlfwSquare::updateForces(double dt)
@@ -188,7 +182,6 @@ void GlfwSquare::updateAcceleration(double dt)
 
 void GlfwSquare::updateVelocity(double dt)
 {
-    previousVelocity = velocity;
 }
 
 void GlfwSquare::updateAngAcceleration(double dt)
@@ -201,7 +194,7 @@ void GlfwSquare::updateAngVelocity(double dt)
     D_rotation = 0;
 }
 
-void GlfwSquare::updatePosition(double dt)
+void GlfwSquare::updatePosition()
 {
     position.x += velocity.x;
     position.y += velocity.y;
@@ -222,21 +215,8 @@ void GlfwSquare::handleCollision()
     {
         colliders = glfwCollision->preventPenetration(this, colliders);
         glfwCollision->pointsOfCollision(this, colliders);
-        //calculateImpulse(colliders);
     }
-
-    if (name == "sq4" && collision)
-    {
-        for (auto const &[key, val] : collisionPoints)
-        {
-            for (int i = 0; i < val.at("point").size(); ++i)
-            {
-                gameControl->createObject(DebugLine(val.at("point")[i].x, val.at("point")[i].y,
-                                                    val.at("point")[i].x + val.at("normal")[i].x * 20,
-                                                    val.at("point")[i].y + val.at("normal")[i].y * 20));
-            }
-        }
-    }
+    glfwCollision->calculateImpulse(this, collisionPoints, this->restitution);
 }
 
 void GlfwSquare::collisionHandler()

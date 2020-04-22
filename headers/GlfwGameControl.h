@@ -21,6 +21,7 @@ public:
     double getPerformance(bool printPerformance = true);
     void updateAllBegin(double msPerFrame = 1);
     void updateAll(double msPerFrame = 1);
+    void updateAllEnd(double msPerFrame = 1);
     void drawAll();
 
 private:

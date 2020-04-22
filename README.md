@@ -7,4 +7,6 @@ Just started a small project to fine tune my understanding of cpp.
   * Draw rectangles
   * Possibility to add key listeners
   * Collision detection for convex shapes
-  * Finding colliding points of each convex shape
+  * Finding collision points for convex shapes
+  * Finding collision normals for convex shapes
+  * Bouncing off of each other for convex shapes

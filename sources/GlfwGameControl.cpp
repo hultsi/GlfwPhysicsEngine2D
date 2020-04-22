@@ -102,6 +102,14 @@ void GlfwGameControl::updateAll(double msPerFrame)
     }
 }
 
+void GlfwGameControl::updateAllEnd(double msPerFrame)
+{
+    for (auto const &[key, val] : rectAll_private)
+    {
+        rectAll_private.at(key).updateEnd();
+    }
+}
+
 void GlfwGameControl::resetPerformance()
 {
     lastTime = glfwGetTime();

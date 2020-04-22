@@ -212,13 +212,10 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
                 P.rotate(M_PI / 2);
                 proj1 = getProjections(coords, P);
                 sorted1 = sortProjections(proj1);
-                //TODO: NORMAL MIGHT NOT BE CONFIGURED PROPERLY (WHICH WAY FOR EACH OF THE RECTS?)
                 for (int i = 1; i < proj1.size() - 1; ++i)
                 {
                     collisionPoints.at("point").emplace_back(coords[sorted1[i]]);
                     collisionPoints.at("normal").emplace_back(normal);
-                    //gameControl->createObject(DebugLine(coords[sorted1[i]].x, coords[sorted1[i]].y, coords[sorted1[i]].x + normal.x * 20, coords[sorted1[i]].y + normal.y * 20));
-                    //gameControl->createObject(DebugCircle(coords[sorted1[i]].x + normal.x * 20, coords[sorted1[i]].y + normal.y * 20, 5));
                 }
 
                 sq1->collisionPoints.emplace(sq2, collisionPoints);
@@ -237,6 +234,32 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
     }
 }
 
+void GlfwCollision::calculateImpulse(GlfwSquare *sqObj, std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints, float restitution)
+{
+    float impulse = 0;
+    Vector2d impulseVector(0, 0);
+    Vector2d normal(0, 0);
+
+    for (auto const &[key, sq] : collisionPoints)
+    {
+        normal = sq.at("normal")[0]; // Each normal == same for convex shapes
+
+        impulse = -(1 + restitution) * ((sqObj->previousVelocity - key->previousVelocity).dot(normal)) / (sqObj->invMass + key->invMass);
+        impulseVector.x = impulse * normal.x;
+        impulseVector.y = impulse * normal.y;
+
+        sqObj->impulseVector = impulseVector;
+        key->impulseVector = impulseVector * -1;
+
+        key->collisionPoints.erase(sqObj);
+    }
+}
+
+/**
+ * 
+ *  PRIVATE 
+ * 
+ */
 Vector2d GlfwCollision::getProjectionVector(Vector2d point1, Vector2d point2)
 {
     Vector2d P;

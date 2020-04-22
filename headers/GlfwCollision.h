@@ -15,6 +15,8 @@ public:
 
     void pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders);
 
+    void calculateImpulse(GlfwSquare *sqObj, std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints, float restitution);
+
 private:
     // Returns a vector that starts from 0 and has the same angle
     // as the line drawn from point1 to point2

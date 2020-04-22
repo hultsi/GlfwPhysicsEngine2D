@@ -14,7 +14,7 @@ int main(void)
     sq->velocity.x = 5;
     sq->velocity.y = -2;
     GlfwSquare *sq2 = gameControl.createObject(GlfwSquare(720, 280, 280, 60, M_PI / 2, false, "sq2", 70));
-    GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(330, 440, 100, 60, 20, false, "sq3", 30));
+    GlfwSquare *sq3 = gameControl.createObject(GlfwSquare(330, 440, 100, 60, 20, false, "sq3", 100));
     sq3->velocity.x = 5;
     sq3->velocity.y = -2;
     GlfwSquare *sq4 = gameControl.createObject(GlfwSquare(980, 380, 50, 60, M_PI / 2, false, "sq4", 30));
@@ -40,7 +40,9 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Update objects */
-        gameControl.updateAll(msPerFrame);
+        gameControl.updateAllBegin();
+        gameControl.updateAll();
+        gameControl.updateAllEnd();
 
         /* Draw objects */
         gameControl.drawAll();

@@ -22,10 +22,12 @@ public:
     Vector2d acceleration;
     Vector2d force;
     Vector2d previousVelocity;
+    Vector2d impulseVector;
     double rotation, D_rotation, DD_rotation;
     double inertia = 0, momentum = 0, KE = 0, PE = 0;
     int applyForce = 0;
     bool collision = false;
+    float restitution = 0.7;
 
     //Map of squares with a map with 2 values --> "point" & "normal"
     std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints;
@@ -39,6 +41,7 @@ public:
 
     void updateBegin();
     void update(double SPF = 1); // Seconds Per Frame
+    void updateEnd();
     void draw();
 
     void move(float xInc = 0, float yInc = 0);
@@ -49,13 +52,13 @@ public:
     void setGameControl(GlfwGameControl *gameControl);
 
 private:
-    void calculateImpulse(std::vector<GlfwSquare *> squares);
+    void applyImpulse();
     void updateForces(double dt);
     void updateAcceleration(double dt);
     void updateVelocity(double dt);
     void updateAngAcceleration(double dt);
     void updateAngVelocity(double dt);
-    void updatePosition(double dt);
+    void updatePosition();
     void handleCollision();
 
     void collisionHandler();
