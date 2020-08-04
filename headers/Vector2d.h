@@ -24,10 +24,12 @@ public:
     bool operator!=(const Vector2d &param);
 
     float dot(const Vector2d &param) const;
-    Vector2d cross(const Vector2d &param) const;
+    //Vector2d cross(const Vector2d &param) const;
+    float cross(const Vector2d &param) const;
 
     void rotate(double radians);
     void normalize();
+    void setLength(float len);
     float getLength() const;
     float getAngle() const;
     float getAngleDeg() const;

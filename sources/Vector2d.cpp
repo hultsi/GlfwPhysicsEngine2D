@@ -83,6 +83,15 @@ float Vector2d::dot(const Vector2d &param) const
     return val;
 }
 
+void Vector2d::setLength(float len)
+{
+    float angle = getAngle();
+    float speed = len;
+
+    this->x = speed * std::cos(angle);
+    this->y = speed * std::sin(angle);
+}
+
 float Vector2d::getLength() const
 {
     float val;
@@ -100,6 +109,14 @@ float Vector2d::getAngleDeg() const
     return this->angle * 360 / (2 * M_PI);
 }
 
+float Vector2d::cross(const Vector2d &param) const
+{
+    float out;
+    out = this->x * param.y - this->y * param.x;
+    return out;
+}
+
+/*
 Vector2d Vector2d::cross(const Vector2d &param) const
 {
     Vector2d vec;
@@ -107,3 +124,4 @@ Vector2d Vector2d::cross(const Vector2d &param) const
     vec.y = -this->y * param.x;
     return vec;
 }
+*/

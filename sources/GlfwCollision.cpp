@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <string>
 
 GlfwCollision::GlfwCollision() {}
 
@@ -12,7 +13,7 @@ GlfwCollision::GlfwCollision(GlfwGameControl *gameControl)
 }
 
 //Uses Separating Axis Theorem (SAT)
-std::unordered_map<std::string, GlfwSquare *> GlfwCollision::withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders)
+std::unordered_map<std::string, GlfwSquare *> GlfwCollision::withConvex(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders, bool withVelocity)
 {
     std::unordered_map<std::string, GlfwSquare *> collidingSquares;
 
@@ -42,8 +43,8 @@ std::unordered_map<std::string, GlfwSquare *> GlfwCollision::withConvex(GlfwSqua
                 sq1 = colliders.at(key);
                 sq2 = sqObj;
             }
-            coords1 = sq1->getCoordinates(true);
-            coords2 = sq2->getCoordinates(true);
+            coords1 = sq1->getCoordinates(withVelocity);
+            coords2 = sq2->getCoordinates(withVelocity);
             for (int j = 0; j < coords1.size() / 2; j++) // Loop over half of the points that make the square (can be applied to others this way)
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
@@ -91,30 +92,30 @@ std::unordered_map<std::string, GlfwSquare *> GlfwCollision::withConvex(GlfwSqua
  * Takes in a target convex object and objects that the convex object collides with and prevents
  * the target penetrating the collider objects.
  */
-std::unordered_map<std::string, GlfwSquare *> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders)
+std::unordered_map<std::string, GlfwSquare *> GlfwCollision::preventPenetration(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders, bool withVelocity)
 {
     std::unordered_map<std::string, GlfwSquare *> collidersOut;
+    std::unordered_map<std::string, GlfwSquare *> colliders3;
 
-    int ind = 0;
-    int sign = 0;
     while (colliders.size() > 0)
     {
-        collidersOut.clear();
-        collidersOut = colliders;
+        sqObj->collidingObjects = colliders;
 
-        sqObj->velocity = decreaseVelocity(sqObj->velocity);
-        for (auto const &[key, val] : colliders)
+        sqObj->position = decreasePosition(sqObj->position, sqObj->previousPosition, sqObj->velocity);
+        sqObj->rotation = decreaseAngle(sqObj->rotation, sqObj->previousRotation, sqObj->D_rotation);
+        for (auto const &[key, colliderRect] : colliders)
         {
-            colliders.at(key)->velocity = decreaseVelocity(colliders.at(key)->velocity);
+            colliderRect->position = decreasePosition(colliderRect->position, colliderRect->previousPosition, colliderRect->velocity);
+            colliderRect->rotation = decreaseAngle(colliderRect->rotation, colliderRect->previousRotation, colliderRect->D_rotation);
+            colliders3 = withConvex(colliderRect, gameControl->rectAll, withVelocity);
+            preventPenetration(colliderRect, colliders3, withVelocity);
         }
-
-        colliders = withConvex(sqObj, colliders);
+        colliders = withConvex(sqObj, colliders, withVelocity);
     }
-
     return collidersOut;
 }
 
-void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders)
+void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std::string, GlfwSquare *> &colliders, bool withVelocity)
 {
     Coords coords1;
     std::vector<float> proj1;
@@ -141,6 +142,7 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
     Vector2d P;
     for (auto const &[key, val] : colliders)
     {
+        collisionFound = false;
         collisionPoints.clear();
         collisionPoints.emplace("point", NULL);
         collisionPoints.emplace("normal", NULL);
@@ -148,18 +150,19 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
         sq2 = colliders.at(key);
         for (int n = 0; n < 2; ++n) // loop over both shapes to get all necessary projections
         {
-            if (sqObj == colliders.at(key))
+            if (sqObj == colliders.at(key)) // Don't compare if the objects are the same
                 break;
-            if (sqObj->collisionPoints.find(val) != sqObj->collisionPoints.end())
+            if (sqObj->collisionPoints.find(val) != sqObj->collisionPoints.end()) // Don't compare if the pair has been checked already
                 break;
 
-            if (n > 0)
+            if (n > 0) // Switch rects for 2nd loop to get all necessary projections
             {
                 sq1 = colliders.at(key);
                 sq2 = sqObj;
             }
-            coords1 = sq1->getCoordinates(true);
-            coords2 = sq2->getCoordinates(true);
+
+            coords1 = sq1->getCoordinates(withVelocity);
+            coords2 = sq2->getCoordinates(withVelocity);
             for (int j = 0; j < coords1.size() / 2; ++j) // Loop over half of the points that make the rect
             {
                 P = getProjectionVector(coords1.at(j + 1), coords1.at(j));
@@ -171,36 +174,43 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
                 sorted1 = sortProjections(proj1);
                 sorted2 = sortProjections(proj2);
 
-                if (std::abs(proj1[sorted1[sorted1.size() - 1]] - proj2[sorted2[0]]) <= 1)
+                if (std::abs(proj1[sorted1[sorted1.size() - 1]] - proj2[sorted2[0]]) <= 2)
+                {
                     proj1OnLeft = true;
-                else if (std::abs(proj1[sorted1[0]] - proj2[sorted2[sorted2.size() - 1]]) <= 1)
+                }
+                else if (std::abs(proj1[sorted1[0]] - proj2[sorted2[sorted2.size() - 1]]) <= 2)
+                {
                     proj1OnLeft = false;
+                }
                 else
+                {
                     continue;
+                }
 
                 collisionFound = true;
                 coords.clear();
 
+                // Gather points that are nearby each other (on the projection line) to coords
                 if (proj1OnLeft)
                 {
                     coords.emplace_back(coords1[sorted1[coords1.size() - 1]]);
                     coords.emplace_back(coords2[sorted2[0]]);
-                    if (std::abs(proj1[sorted1[coords1.size() - 1]] - proj1[sorted1[coords1.size() - 2]]) < 0.1)
+                    if (formCollidingLine(proj1[sorted1[coords1.size() - 1]], proj1[sorted1[coords1.size() - 2]]))
                         coords.emplace_back(coords1[sorted1[coords1.size() - 2]]);
-                    if (std::abs(proj2[sorted2[0]] - proj2[sorted2[1]]) < 0.1)
+                    if (formCollidingLine(proj2[sorted2[0]], proj2[sorted2[1]]))
                         coords.emplace_back(coords2[sorted2[1]]);
                 }
                 else
                 {
                     coords.emplace_back(coords1[sorted1[0]]);
                     coords.emplace_back(coords2[sorted2[coords2.size() - 1]]);
-                    if (std::abs(proj1[sorted1[0]] - proj1[sorted1[1]]) < 0.1)
+                    if (formCollidingLine(proj1[sorted1[0]], proj1[sorted1[1]]))
                         coords.emplace_back(coords1[sorted1[1]]);
-                    if (std::abs(proj2[sorted2[coords2.size() - 1]] - proj2[sorted2[coords2.size() - 2]]) < 0.1)
+                    if (formCollidingLine(proj2[sorted2[coords2.size() - 1]], proj2[sorted2[coords2.size() - 2]]))
                         coords.emplace_back(coords2[sorted2[coords2.size() - 2]]);
                 }
 
-                // Rotate P 90 deg
+                // Define normal vector
                 normal = P;
                 normal.normalize();
                 if (proj1OnLeft)
@@ -208,7 +218,7 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
                     normal.x = -normal.x;
                     normal.y = -normal.y;
                 }
-
+                // Rotate P 90 deg
                 P.rotate(M_PI / 2);
                 proj1 = getProjections(coords, P);
                 sorted1 = sortProjections(proj1);
@@ -218,20 +228,36 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
                     collisionPoints.at("normal").emplace_back(normal);
                 }
 
+                // Save collision points and normals for both rects
                 sq1->collisionPoints.emplace(sq2, collisionPoints);
+                sq1->collision = true;
                 for (int i = 0; i < collisionPoints.at("normal").size(); ++i)
                 {
                     collisionPoints.at("normal")[i].x = -collisionPoints.at("normal")[i].x;
                     collisionPoints.at("normal")[i].y = -collisionPoints.at("normal")[i].y;
                 }
                 sq2->collisionPoints.emplace(sq1, collisionPoints);
-                sq1->collision = true;
                 sq2->collision = true;
+
+                if (collisionFound)
+                    break;
             }
             if (collisionFound)
                 break;
         }
     }
+}
+
+bool GlfwCollision::linesIntersect(float x0_1, float y0_1, float x0_2, float y0_2, float x1_1, float y1_1, float x1_2, float y1_2)
+{
+    return false;
+}
+
+Vector2d GlfwCollision::intersectionPoint(float x0_1, float y0_1, float x0_2, float y0_2, float x1_1, float y1_1, float x1_2, float y1_2)
+{
+    Vector2d vec;
+
+    return vec;
 }
 
 void GlfwCollision::calculateImpulse(GlfwSquare *sqObj, std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints, float restitution)
@@ -244,22 +270,52 @@ void GlfwCollision::calculateImpulse(GlfwSquare *sqObj, std::unordered_map<GlfwS
     {
         normal = sq.at("normal")[0]; // Each normal == same for convex shapes
 
-        impulse = -(1 + restitution) * ((sqObj->previousVelocity - key->previousVelocity).dot(normal)) / (sqObj->invMass + key->invMass);
+        impulse = -(1 + restitution) * ((sqObj->velocity - key->velocity).dot(normal)) / (sqObj->invMass + key->invMass);
         impulseVector.x = impulse * normal.x;
         impulseVector.y = impulse * normal.y;
 
-        sqObj->impulseVector = impulseVector;
-        key->impulseVector = impulseVector * -1;
+        sqObj->impulseVector = sqObj->impulseVector + impulseVector;
+        key->impulseVector = key->impulseVector + impulseVector * -1;
 
-        key->collisionPoints.erase(sqObj);
+        key->collidingObjects.erase(sqObj->name);
+
+        // These somewhere else?
+        sqObj->applyImpulse();
+        key->applyImpulse();
     }
 }
 
+void GlfwCollision::calculateForceMoment(GlfwSquare *sqObj, std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints)
+{
+    Vector2d point(0, 0);
+    Vector2d radVec(0, 0);
+    int pointTotal = 0;
+    for (auto const &[key, sq] : collisionPoints)
+    {
+        pointTotal = sq.at("point").size();
+        for (int i = 0; i < pointTotal; ++i)
+        {
+            point = sq.at("point")[i];
+            radVec = point - sqObj->position;
+
+            sqObj->forceMoment += radVec.cross(sqObj->impulseVector) / pointTotal;
+
+            radVec = point - key->position;
+            key->forceMoment += radVec.cross(key->impulseVector) / pointTotal;
+        }
+        key->collisionPoints.erase(sqObj);
+    }
+}
 /**
  * 
  *  PRIVATE 
  * 
  */
+bool GlfwCollision::formCollidingLine(float a, float b)
+{
+    return std::abs(a - b) < 0.1;
+}
+
 Vector2d GlfwCollision::getProjectionVector(Vector2d point1, Vector2d point2)
 {
     Vector2d P;
@@ -352,6 +408,55 @@ Vector2d GlfwCollision::decreaseVelocity(Vector2d &vel)
     out.y = sign * speed * std::sin(angle);
 
     return out;
+}
+
+float GlfwCollision::decreaseAngularVelocity(float omega, float amount)
+{
+    if (omega > amount)
+        return omega - amount;
+    else if (omega < -amount)
+        return omega + amount;
+    else
+        return 0;
+}
+
+Vector2d GlfwCollision::decreasePosition(Vector2d &pos, Vector2d &prevPos, Vector2d &vel)
+{
+    Vector2d out = pos;
+    float angle = vel.getAngle();
+    float speed = vel.getLength();
+    float speedDecX;
+    float speedDecY;
+    if (speed > 0)
+    {
+        speedDecX = -vel.x * 1 / speed; // This needs to be optimized
+        speedDecY = -vel.y * 1 / speed; // This needs to be optimized
+    }
+    else
+        return prevPos;
+
+    if (std::abs(pos.x - prevPos.x) > std::abs(speedDecX))
+        out.x += speedDecX;
+    else
+        out.x = prevPos.x;
+
+    if (std::abs(pos.y - prevPos.y) > std::abs(speedDecY))
+        out.y += speedDecY;
+    else
+        out.y = prevPos.y;
+
+    return out;
+}
+
+float GlfwCollision::decreaseAngle(float angle, float prevAngle, float omega)
+{
+    // Increase 0.1 if you see weird "lagging"
+    if (omega > 0.1 && angle > prevAngle)
+        return angle - 0.1;
+    else if (omega < -0.1 && angle < prevAngle)
+        return angle + 0.1;
+    else
+        return prevAngle;
 }
 
 std::unordered_map<std::string, std::vector<Vector2d>> GlfwCollision::getNearbyPoints(std::vector<float> proj1, std::vector<float> proj2)

@@ -96,9 +96,36 @@ void GlfwGameControl::updateAllBegin(double msPerFrame)
 
 void GlfwGameControl::updateAll(double msPerFrame)
 {
+    std::unordered_map<std::string, GlfwSquare *> colliders;
+    std::vector<std::unordered_map<std::string, GlfwSquare *>> colliders2;
+
     for (auto const &[key, val] : rectAll_private)
-    {
         rectAll_private.at(key).update();
+
+    for (auto const &[key, val] : this->rectAll)
+    {
+        //First collision check
+        colliders = glfwCollision.withConvex(this->rectAll.at(key), this->rectAll, false);
+
+        if (colliders.size() != 0)
+        {
+            // Maybe use line-line intersection here instead to detect collision.
+            glfwCollision.preventPenetration(this->rectAll.at(key), colliders, false);
+        }
+    }
+    //TODO: optimize (move only the ones that are moved)
+    for (auto const &[key, val] : rectAll_private)
+        rectAll_private.at(key).move();
+
+    for (auto const &[key, val] : this->rectAll)
+    {
+        glfwCollision.pointsOfCollision(val, val->collidingObjects, false);
+
+        if (val->collisionPoints.size() != 0)
+        {
+            glfwCollision.calculateImpulse(this->rectAll.at(key), val->collisionPoints, this->rectAll.at(key)->restitution);
+            glfwCollision.calculateForceMoment(this->rectAll.at(key), val->collisionPoints);
+        }
     }
 }
 

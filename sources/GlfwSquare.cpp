@@ -38,13 +38,17 @@ GlfwSquare::GlfwSquare(float bottomLeftX, float bottomLeftY, float rectWidth, fl
     acceleration.x = 0;
     acceleration.y = 0;
 
+    impulseVector.x = 0;
+    impulseVector.y = 0;
+
     rotation = 0;
     D_rotation = 0;
     DD_rotation = 0;
+    forceMoment = 0;
 
     rotate(rectRotation);
 
-    mass = mass;
+    this->mass = mass;
     invMass = 1 / mass;
     if (!isStatic)
     {
@@ -63,14 +67,15 @@ void GlfwSquare::setGameControl(GlfwGameControl *gameControl)
 
 Coords GlfwSquare::getCoordinates(bool addVelocity)
 {
+    Coords coordVec;
+    Vector2d vec;
     float velX = 0, velY = 0;
     if (addVelocity)
     {
         velX = velocity.x;
         velY = velocity.y;
     }
-    Coords coordVec;
-    Vector2d vec;
+
     vec.x = position.x + velX + radius * std::cos(rotation + D_rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
     vec.y = position.y + velY + radius * std::sin(rotation + D_rotation + largeCenterAngle + smallCenterAngle * 3 / 2);
     coordVec.insert(coordVec.end(), vec);
@@ -112,27 +117,29 @@ void GlfwSquare::rotate(float rad)
 //Happens BEFORE update() and during every loop
 void GlfwSquare::updateBegin()
 {
-    collision = false;
+    collidingObjects.clear();
     collisionPoints.clear();
+    previousPosition = position;
     previousVelocity = velocity;
-    impulse = 0;
-    impulseVector.x = 0;
-    impulseVector.y = 0;
+    previousRotation = rotation;
+    previousD_rotation = D_rotation;
 }
 
 //Happens BEFORE updateEnd() and during every loop
 void GlfwSquare::update(double dt)
 {
+    //TODO: Move handleCollision to gameControl and possibly updatePosition as well !?
     if (applyForce)
     {
-        updateForces(dt);
-        updateAcceleration(dt);
-        updateVelocity(dt);
+        // applyImpulse();
     }
-    //TODO: Might have to check collision again after calculating impulse!!!
-    handleCollision();
-    applyImpulse();
     updatePosition();
+
+    impulse = 0;
+    impulseVector.x = 0;
+    impulseVector.y = 0;
+    forceMoment = 0;
+    collision = false;
 }
 
 //Happens BEFORE draw() and during every loop
@@ -168,30 +175,31 @@ void GlfwSquare::draw()
 
 void GlfwSquare::applyImpulse()
 {
-    velocity.x = previousVelocity.x + invMass * impulseVector.x;
-    velocity.y = previousVelocity.y + invMass * impulseVector.y;
-}
+    velocity.x += invMass * impulseVector.x;
+    velocity.y += invMass * impulseVector.y;
 
-void GlfwSquare::updateForces(double dt)
-{
-}
+    if (velocity.getLength() > 10)
+    {
+        velocity.setLength(10);
+    }
+    //D_rotation += forceMoment / inertia;
 
-void GlfwSquare::updateAcceleration(double dt)
-{
-}
+    //std::cout << D_rotation << "\n";
+    Vector2d point(0, 0);
+    Vector2d radVec(0, 0);
+    //if (collisionPoints.size() > 0)
+    //    D_rotation = previousD_rotation;
 
-void GlfwSquare::updateVelocity(double dt)
-{
-}
+    /*for (auto const &[key, val] : collisionPoints)
+    {
+        point = val.at("point")[0];
+        radVec = point - position;
 
-void GlfwSquare::updateAngAcceleration(double dt)
-{
-    D_rotation = 0;
-}
+        D_rotation = previousD_rotation + radVec.cross(impulseVector) / 400000;
 
-void GlfwSquare::updateAngVelocity(double dt)
-{
-    D_rotation = 0;
+        radVec = point - key->position;
+        key->D_rotation = key->previousD_rotation + radVec.cross(key->impulseVector) / 400000;
+    }*/
 }
 
 void GlfwSquare::updatePosition()
@@ -200,25 +208,10 @@ void GlfwSquare::updatePosition()
     position.y += velocity.y;
     rotation += D_rotation;
 
-    move();
+    move(); // --> In void GlfwGameControl::updateAll(double msPerFrame) at the moment
 }
 
 void GlfwSquare::pointCollisionControl(GlfwCollision *collisionObj)
 {
     glfwCollision = collisionObj;
-}
-
-void GlfwSquare::handleCollision()
-{
-    std::unordered_map<std::string, GlfwSquare *> colliders = glfwCollision->withConvex(this, gameControl->rectAll);
-    if (colliders.size() != 0)
-    {
-        colliders = glfwCollision->preventPenetration(this, colliders);
-        glfwCollision->pointsOfCollision(this, colliders);
-    }
-    glfwCollision->calculateImpulse(this, collisionPoints, this->restitution);
-}
-
-void GlfwSquare::collisionHandler()
-{
 }

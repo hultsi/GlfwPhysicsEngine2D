@@ -22,16 +22,22 @@ public:
     Vector2d acceleration;
     Vector2d force;
     Vector2d previousVelocity;
+    Vector2d previousPosition;
     Vector2d impulseVector;
-    double rotation, D_rotation, DD_rotation;
-    double inertia = 0, momentum = 0, KE = 0, PE = 0;
+    float rotation, D_rotation, DD_rotation;
+    float previousRotation;
+    float previousD_rotation;
+    float forceMoment = 0;
+    float inertia = 0;
+    float momentum = 0;
     int applyForce = 0;
     bool collision = false;
     float restitution = 0.7;
 
-    //Map of squares with a map with 2 values --> "point" & "normal"
+    // Objects that collide with this object
+    std::unordered_map<std::string, GlfwSquare *> collidingObjects;
+    // Map of squares with a map with 2 values --> "point" & "normal"
     std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints;
-    //std::unordered_map<GlfwSquare *, std::vector<Vector2d>> collisionNormals;
 
     GlfwSquare(){};
     GlfwSquare(float topLeftX, float topLeftY, float rectWidth, float rectHeight,
@@ -51,17 +57,10 @@ public:
 
     void setGameControl(GlfwGameControl *gameControl);
 
-private:
     void applyImpulse();
-    void updateForces(double dt);
-    void updateAcceleration(double dt);
-    void updateVelocity(double dt);
-    void updateAngAcceleration(double dt);
-    void updateAngVelocity(double dt);
-    void updatePosition();
-    void handleCollision();
 
-    void collisionHandler();
+private:
+    void updatePosition();
 
     GlfwGameControl *gameControl;
     GlfwCollision *glfwCollision;
