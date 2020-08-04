@@ -248,16 +248,38 @@ void GlfwCollision::pointsOfCollision(GlfwSquare *sqObj, std::unordered_map<std:
     }
 }
 
-bool GlfwCollision::linesIntersect(float x0_1, float y0_1, float x0_2, float y0_2, float x1_1, float y1_1, float x1_2, float y1_2)
+bool GlfwCollision::linesIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 {
-    return false;
+    // if 0 <= t <= 1 && 0 <= u <= 1 --> lines intersect
+    float denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    // If issues arise, lower the value 1e-10 closer to 0
+    if (denom >= -1e-10 && denom <= 1e-10)
+        return false;
+
+    float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+    float u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+
+    return (t >= 0 && t <= 1 && u >= 0 && u <= 1);
 }
 
-Vector2d GlfwCollision::intersectionPoint(float x0_1, float y0_1, float x0_2, float y0_2, float x1_1, float y1_1, float x1_2, float y1_2)
+Vector2d GlfwCollision::intersectionPoint(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
 {
-    Vector2d vec;
+    Vector2d vecOut(NAN, NAN);
+    float denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    // If issues arise, lower the value 1e-10 closer to 0
+    if (denom >= -1e-10 && denom <= 1e-10)
+        return vecOut;
 
-    return vec;
+    float t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+    float u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+    {
+        vecOut.x = x1 + t * (x2 - x1);
+        vecOut.y = y1 + t * (y2 - y1);
+    }
+
+    return vecOut;
 }
 
 void GlfwCollision::calculateImpulse(GlfwSquare *sqObj, std::unordered_map<GlfwSquare *, std::unordered_map<std::string, std::vector<Vector2d>>> collisionPoints, float restitution)
